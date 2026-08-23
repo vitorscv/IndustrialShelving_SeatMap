@@ -1,0 +1,15 @@
+.operation-page {
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.operation-page__error {
+  color: #e03131;
+  margin-top: 1rem;
+}
+
+.operation-page__success {
+  color: #2f9e44;
+  margin-top: 1rem;
+}

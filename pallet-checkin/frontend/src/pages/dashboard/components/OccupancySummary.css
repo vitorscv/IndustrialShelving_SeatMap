@@ -1,0 +1,29 @@
+.occupancy-summary {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.occupancy-summary__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  min-width: 5rem;
+}
+
+.occupancy-summary__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.occupancy-summary__label {
+  font-size: 0.8rem;
+  color: #868e96;
+}
+
+.occupancy-summary__error {
+  color: #e03131;
+}

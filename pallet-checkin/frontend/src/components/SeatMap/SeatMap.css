@@ -1,0 +1,48 @@
+.seat-map {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.seat-map__shelf {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.seat-map__aisle {
+  color: #868e96;
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+.seat-map__level {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.seat-map__level-label {
+  width: 5rem;
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.seat-map__row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.seat-map__details {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+}
