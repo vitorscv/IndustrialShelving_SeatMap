@@ -22,7 +22,7 @@ export function PositionSelector({
       .filter((position) => position.status === statusFilter)
       .map((position) => ({
         id: position.id,
-        label: `${shelf.title} / Level ${position.level} / Position ${position.number}`,
+        label: `${shelf.title} - ${position.level} - ${position.number}`,
       })),
   );
 

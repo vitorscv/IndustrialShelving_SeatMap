@@ -7,8 +7,8 @@ interface SeatMapProps {
   shelves: Shelf[];
 }
 
-function groupByLevel(positions: Position[]): Map<number, Position[]> {
-  const byLevel = new Map<number, Position[]>();
+function groupByLevel(positions: Position[]): Map<string, Position[]> {
+  const byLevel = new Map<string, Position[]>();
   for (const position of positions) {
     const levelPositions = byLevel.get(position.level) ?? [];
     levelPositions.push(position);
@@ -27,12 +27,13 @@ export function SeatMap({ shelves }: SeatMapProps) {
     <div className="seat-map">
       {shelves.map((shelf) => {
         const byLevel = groupByLevel(shelf.positions);
-        const levels = Array.from(byLevel.keys()).sort((a, b) => b - a);
+        // Levels are letters, A (bottom) to E (top); show the top level first.
+        const levels = Array.from(byLevel.keys()).sort((a, b) => b.localeCompare(a));
 
         return (
           <section key={shelf.id} className="seat-map__shelf">
             <h3>
-              {shelf.title} <span className="seat-map__aisle">({shelf.aisle})</span>
+              {shelf.title} <span className="seat-map__meta">({shelf.locations} locations)</span>
             </h3>
             {levels.map((level) => (
               <div key={level} className="seat-map__level">

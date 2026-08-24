@@ -8,7 +8,7 @@ CREATE TYPE "MovementType" AS ENUM ('CHECK_IN', 'CHECK_OUT');
 CREATE TABLE "Shelf" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "aisle" TEXT NOT NULL,
+    "locations" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -19,7 +19,7 @@ CREATE TABLE "Shelf" (
 CREATE TABLE "Position" (
     "id" TEXT NOT NULL,
     "shelfId" TEXT NOT NULL,
-    "level" INTEGER NOT NULL,
+    "level" TEXT NOT NULL,
     "number" INTEGER NOT NULL,
     "status" "PositionStatus" NOT NULL DEFAULT 'FREE',
     "palletCode" TEXT,

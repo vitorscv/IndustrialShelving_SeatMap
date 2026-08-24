@@ -1,6 +1,6 @@
 // Prisma schema for the Pantex Embalagens Industriais pallet rack check-in system.
-// NOTE: shelf dimensions (aisles/levels/positions) are NOT hardcoded anywhere here —
-// the real floor plan has not been surveyed yet, so layout is entirely data-driven.
+// NOTE: shelf dimensions (locations/levels/positions) are NOT hardcoded anywhere here —
+// they come entirely from Shelf.locations and the seeded Position rows.
 
 generator client {
   provider = "prisma-client-js"
@@ -25,7 +25,7 @@ enum MovementType {
 model Shelf {
   id        String     @id @default(uuid())
   title     String
-  aisle     String
+  locations Int
   positions Position[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -35,7 +35,7 @@ model Position {
   id         String         @id @default(uuid())
   shelfId    String
   shelf      Shelf          @relation(fields: [shelfId], references: [id])
-  level      Int
+  level      String
   number     Int
   status     PositionStatus @default(FREE)
   palletCode String?

@@ -1,66 +1,33 @@
-import { PrismaClient, PositionStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
-// MOCK / PLACEHOLDER DATA — the real floor plan (aisles, levels, positions
-// per shelf) has not been surveyed yet. This layout (2 shelves x 3 levels x
-// 8 positions) exists only so the frontend has realistic data to develop
-// against, and must be replaced once the real warehouse layout is known.
-
+// Real Pantex Embalagens Industriais warehouse layout: 3 shelves ("racks"),
+// each with 5 levels (A bottom to E top). Positions per level are counted
+// from the end closest to Expedição (position 1 = nearest Expedição), and
+// each physical location holds 2 pallet positions side by side.
 const prisma = new PrismaClient();
 
-const MOCK_SHELVES = [
-  { title: 'Prateleira A', aisle: 'Corredor 1' },
-  { title: 'Prateleira B', aisle: 'Corredor 2' },
+const shelvesData = [
+  { title: 'Estante 1', locations: 18 }, // 36 positions/level
+  { title: 'Estante 2', locations: 8 }, // 16 positions/level
+  { title: 'Estante 3', locations: 5 }, // 10 positions/level
 ];
 
-const LEVELS_PER_SHELF = 3;
-const POSITIONS_PER_LEVEL = 8;
-
-// A handful of positions pre-marked OCCUPIED so the UI has something to show.
-const OCCUPIED_SEED_PALLETS = [
-  'PLT-0001',
-  'PLT-0002',
-  'PLT-0003',
-  'PLT-0004',
-  'PLT-0005',
-];
+const levels = ['A', 'B', 'C', 'D', 'E'];
 
 async function main() {
-  console.log('Seeding mock warehouse layout...');
+  console.log('Seeding real warehouse layout...');
 
-  let occupiedIndex = 0;
+  for (const shelfData of shelvesData) {
+    const shelf = await prisma.shelf.create({
+      data: { title: shelfData.title, locations: shelfData.locations },
+    });
 
-  for (const shelfData of MOCK_SHELVES) {
-    const shelf = await prisma.shelf.create({ data: shelfData });
-
-    for (let level = 1; level <= LEVELS_PER_SHELF; level++) {
-      for (let number = 1; number <= POSITIONS_PER_LEVEL; number++) {
-        // Occupy a few positions deterministically (every 5th slot) up to
-        // the number of mock pallet codes we have.
-        const shouldOccupy =
-          occupiedIndex < OCCUPIED_SEED_PALLETS.length &&
-          (level * POSITIONS_PER_LEVEL + number) % 5 === 0;
-
-        const position = await prisma.position.create({
-          data: {
-            shelfId: shelf.id,
-            level,
-            number,
-            status: shouldOccupy ? PositionStatus.OCCUPIED : PositionStatus.FREE,
-            palletCode: shouldOccupy ? OCCUPIED_SEED_PALLETS[occupiedIndex] : null,
-          },
+    const positionsPerLevel = shelfData.locations * 2;
+    for (const level of levels) {
+      for (let number = 1; number <= positionsPerLevel; number++) {
+        await prisma.position.create({
+          data: { shelfId: shelf.id, level, number, status: 'FREE' },
         });
-
-        if (shouldOccupy) {
-          await prisma.movement.create({
-            data: {
-              positionId: position.id,
-              type: 'CHECK_IN',
-              palletCode: OCCUPIED_SEED_PALLETS[occupiedIndex],
-              operatorName: 'Seed Script',
-            },
-          });
-          occupiedIndex++;
-        }
       }
     }
   }

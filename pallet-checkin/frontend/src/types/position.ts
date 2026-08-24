@@ -5,7 +5,7 @@ export type MovementType = 'CHECK_IN' | 'CHECK_OUT';
 export interface Position {
   id: string;
   shelfId: string;
-  level: number;
+  level: string;
   number: number;
   status: PositionStatus;
   palletCode: string | null;
@@ -16,7 +16,7 @@ export interface Position {
 export interface Shelf {
   id: string;
   title: string;
-  aisle: string;
+  locations: number;
   positions: Position[];
   createdAt: string;
   updatedAt: string;
