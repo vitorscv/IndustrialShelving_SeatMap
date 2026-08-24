@@ -25,14 +25,23 @@
 
 .seat-map__level-label {
   width: 5rem;
+  flex-shrink: 0;
   font-size: 0.85rem;
   color: #495057;
 }
 
+/* Fixed-size cells, never shrunk — a row wider than the card scrolls
+   horizontally instead of wrapping or squeezing numbers unreadable. */
 .seat-map__row {
   display: flex;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.seat-map__row .position-cell {
+  flex-shrink: 0;
 }
 
 .seat-map__details {
