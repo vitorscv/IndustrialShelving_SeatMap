@@ -1,4 +1,4 @@
-import type { Position } from '../../../types/position';
+import type { Position, PositionStatus } from '../../../types/position';
 import { PositionCell } from '../../../components/PositionCell/PositionCell';
 import './PositionGrid.css';
 
@@ -7,9 +7,18 @@ interface PositionGridProps {
   positions: Position[];
   selectedPositionId: string | null;
   onSelect: (position: Position) => void;
+  // Only cells with this status can be tapped — FREE while checking in,
+  // OCCUPIED while checking out. Everything else (including BLOCKED) is
+  // disabled, since it can't receive the movement already committed to.
+  tappableStatus: PositionStatus;
 }
 
-export function PositionGrid({ positions, selectedPositionId, onSelect }: PositionGridProps) {
+export function PositionGrid({
+  positions,
+  selectedPositionId,
+  onSelect,
+  tappableStatus,
+}: PositionGridProps) {
   return (
     <div className="position-grid">
       {positions.map((position) => (
@@ -19,7 +28,7 @@ export function PositionGrid({ positions, selectedPositionId, onSelect }: Positi
           onSelect={onSelect}
           selected={position.id === selectedPositionId}
           size="lg"
-          disableWhenBlocked
+          disabled={position.status !== tappableStatus}
         />
       ))}
     </div>

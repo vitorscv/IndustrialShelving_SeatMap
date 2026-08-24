@@ -6,10 +6,10 @@ interface PositionCellProps {
   onSelect: (position: Position) => void;
   selected?: boolean;
   size?: 'sm' | 'lg';
-  // BLOCKED positions aren't actionable in a picker flow (no valid
-  // check-in/check-out to perform), but should stay clickable in a
-  // read-only view like the dashboard's details panel.
-  disableWhenBlocked?: boolean;
+  // Left to the caller: a read-only view (dashboard details) never disables
+  // cells, while a picker flow disables whichever statuses aren't actionable
+  // for the intent currently being carried out.
+  disabled?: boolean;
 }
 
 export function PositionCell({
@@ -17,7 +17,7 @@ export function PositionCell({
   onSelect,
   selected = false,
   size = 'sm',
-  disableWhenBlocked = false,
+  disabled = false,
 }: PositionCellProps) {
   const classNames = [
     'position-cell',
@@ -33,7 +33,7 @@ export function PositionCell({
       type="button"
       className={classNames}
       onClick={() => onSelect(position)}
-      disabled={disableWhenBlocked && position.status === 'BLOCKED'}
+      disabled={disabled}
       title={`Level ${position.level} / Position ${position.number}`}
     >
       {position.number}

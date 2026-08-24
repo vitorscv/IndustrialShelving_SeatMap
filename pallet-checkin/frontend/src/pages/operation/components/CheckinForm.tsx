@@ -126,7 +126,11 @@ export function CheckinForm({
         />
       </label>
 
-      <button type="submit" disabled={submitting}>
+      <button
+        type="submit"
+        className={isCheckIn ? 'checkin-form__submit--checkin' : 'checkin-form__submit--checkout'}
+        disabled={submitting}
+      >
         {submitting ? 'Enviando...' : isCheckIn ? 'Confirmar check-in' : 'Confirmar check-out'}
       </button>
 

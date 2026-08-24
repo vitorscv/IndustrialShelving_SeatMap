@@ -1,0 +1,20 @@
+/* Pantex brand theme tokens — shared across pages so future restyles
+   (e.g. applying this same palette to the dashboard) only touch this file. */
+:root {
+  --color-bg: #0b1120; /* base page background */
+  --color-surface: #111a2e; /* card/panel background */
+  --color-border: #1e2a45; /* card borders, dividers */
+  --color-text-primary: #f5f7fa;
+  --color-text-secondary: #8b95aa; /* uppercase labels, muted text */
+  --color-success: #2ecc71; /* FREE / conforme / success */
+  --color-warning: #f5a623; /* attention states */
+  --color-danger: #e85d5d; /* OCCUPIED / error / não conforme */
+  --color-brand-accent: #fbbf24; /* the yellow dot from the Pantex logo */
+  --radius-card: 12px;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Dark, near-black ink used as text color on top of the bright
+     success/danger backgrounds (cells, primary buttons) — white text
+     on those particular tones fails contrast, this passes comfortably. */
+  --color-on-accent: #04120a;
+}

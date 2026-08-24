@@ -1,4 +1,4 @@
-.shelf-picker {
+.intent-picker {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
@@ -8,10 +8,10 @@
   border-radius: var(--radius-card);
 }
 
-.shelf-picker__button {
+.intent-picker__button {
   flex: 1;
-  min-width: 8rem;
-  padding: 1.5rem 1rem;
+  min-width: 10rem;
+  padding: 2rem 1rem;
   font-family: var(--font-sans);
   font-size: 1.3rem;
   font-weight: 700;
@@ -23,8 +23,10 @@
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
-.shelf-picker__button--selected {
-  border-color: var(--color-brand-accent);
-  background-color: rgba(251, 191, 36, 0.12);
-  color: var(--color-brand-accent);
+.intent-picker__button--checkin:hover {
+  border-color: var(--color-success);
+}
+
+.intent-picker__button--checkout:hover {
+  border-color: var(--color-danger);
 }
