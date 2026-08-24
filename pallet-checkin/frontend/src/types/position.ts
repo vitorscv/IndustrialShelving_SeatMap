@@ -9,6 +9,8 @@ export interface Position {
   number: number;
   status: PositionStatus;
   palletCode: string | null;
+  orderNumber: string | null;
+  product: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,6 +29,8 @@ export interface Movement {
   positionId: string;
   type: MovementType;
   palletCode: string;
+  orderNumber: string;
+  product: string;
   operatorName: string;
   timestamp: string;
 }
@@ -35,6 +39,10 @@ export interface CreateMovementInput {
   positionId: string;
   type: MovementType;
   palletCode: string;
+  // Required on CHECK_IN; ignored by the backend on CHECK_OUT (it reads
+  // the values already stored on the Position instead).
+  orderNumber?: string;
+  product?: string;
   operatorName: string;
 }
 

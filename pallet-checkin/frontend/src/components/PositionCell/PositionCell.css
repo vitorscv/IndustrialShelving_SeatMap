@@ -1,0 +1,41 @@
+.position-cell {
+  border-radius: 6px;
+  border: 2px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+  color: #fff;
+}
+
+.position-cell:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.position-cell--sm {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 0.85rem;
+}
+
+.position-cell--lg {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.15rem;
+}
+
+.position-cell--free {
+  background-color: #2f9e44;
+}
+
+.position-cell--occupied {
+  background-color: #e03131;
+}
+
+.position-cell--blocked {
+  background-color: #868e96;
+}
+
+.position-cell--selected {
+  border-color: #1971c2;
+  box-shadow: 0 0 0 3px rgba(25, 113, 194, 0.35);
+}

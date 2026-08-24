@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Position, Shelf } from '../../types/position';
-import { PositionCell } from './PositionCell';
+import { PositionCell } from '../PositionCell/PositionCell';
 import './SeatMap.css';
 
 interface SeatMapProps {

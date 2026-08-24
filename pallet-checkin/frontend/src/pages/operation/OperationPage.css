@@ -1,15 +1,48 @@
 .operation-page {
-  max-width: 30rem;
+  max-width: 40rem;
   margin: 0 auto;
   padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.operation-page__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 1.1rem;
+}
+
+.operation-page__crumb {
+  background: none;
+  border: none;
+  padding: 0.25rem 0.4rem;
+  font: inherit;
+  font-weight: 700;
+  color: #1971c2;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.operation-page__crumb--current {
+  color: #495057;
+  font-weight: 600;
+  cursor: default;
+}
+
+.operation-page__crumb-sep {
+  color: #adb5bd;
 }
 
 .operation-page__error {
   color: #e03131;
-  margin-top: 1rem;
+  margin: 0;
 }
 
 .operation-page__success {
   color: #2f9e44;
-  margin-top: 1rem;
+  font-weight: 600;
+  margin: 0;
 }

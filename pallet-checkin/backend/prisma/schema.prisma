@@ -32,16 +32,18 @@ model Shelf {
 }
 
 model Position {
-  id         String         @id @default(uuid())
-  shelfId    String
-  shelf      Shelf          @relation(fields: [shelfId], references: [id])
-  level      String
-  number     Int
-  status     PositionStatus @default(FREE)
-  palletCode String?
-  movements  Movement[]
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
+  id          String         @id @default(uuid())
+  shelfId     String
+  shelf       Shelf          @relation(fields: [shelfId], references: [id])
+  level       String
+  number      Int
+  status      PositionStatus @default(FREE)
+  palletCode  String?
+  orderNumber String?
+  product     String?
+  movements   Movement[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   @@unique([shelfId, level, number])
 }
@@ -52,6 +54,8 @@ model Movement {
   position     Position     @relation(fields: [positionId], references: [id])
   type         MovementType
   palletCode   String
+  orderNumber  String
+  product      String
   operatorName String
   timestamp    DateTime     @default(now())
 }

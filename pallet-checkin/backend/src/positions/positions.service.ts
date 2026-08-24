@@ -15,11 +15,16 @@ export class PositionsService {
   }
 
   // Used by MovementsService inside a transaction to keep the position's
-  // status/palletCode in sync with the movement being recorded.
+  // status/palletCode/orderNumber/product in sync with the movement being recorded.
   updateOccupancy(
     tx: Prisma.TransactionClient,
     id: string,
-    data: { status: PositionStatus; palletCode: string | null },
+    data: {
+      status: PositionStatus;
+      palletCode: string | null;
+      orderNumber: string | null;
+      product: string | null;
+    },
   ) {
     return tx.position.update({ where: { id }, data });
   }

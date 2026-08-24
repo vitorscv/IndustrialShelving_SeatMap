@@ -3,6 +3,43 @@
   flex-direction: column;
   gap: 1rem;
   margin-top: 1.5rem;
+  padding: 1.25rem;
+  border: 2px solid #dee2e6;
+  border-radius: 10px;
+  background-color: #f8f9fa;
+}
+
+.checkin-form__title {
+  margin: 0;
+}
+
+.checkin-form__fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.checkin-form__fieldset legend {
+  padding: 0 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #495057;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.checkin-form__info {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  font-size: 1.05rem;
 }
 
 .checkin-form label {
@@ -33,4 +70,14 @@
 .checkin-form button:disabled {
   background-color: #adb5bd;
   cursor: not-allowed;
+}
+
+.checkin-form__error {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 4px;
+  background-color: #fff5f5;
+  border: 1px solid #ffc9c9;
+  color: #c92a2a;
+  font-size: 0.9rem;
 }
