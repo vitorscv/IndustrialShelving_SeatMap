@@ -1,0 +1,42 @@
+.status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.9rem 1.25rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.status-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-legend__item strong {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.status-legend__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-legend__dot--free {
+  background-color: var(--color-success);
+}
+
+.status-legend__dot--occupied {
+  background-color: var(--color-danger);
+}
+
+.status-legend__dot--blocked {
+  background-color: var(--color-warning);
+}

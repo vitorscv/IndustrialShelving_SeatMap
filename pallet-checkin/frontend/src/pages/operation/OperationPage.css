@@ -7,38 +7,6 @@
   flex-direction: column;
 }
 
-.operation-page__header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 1.5rem;
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.operation-page__brand {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.operation-page__logo {
-  height: 3.75rem;
-  width: auto;
-  display: block;
-}
-
-.operation-page__brand-subtitle {
-  margin: 0;
-  padding-left: 1rem;
-  border-left: 1px solid var(--color-border);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-}
-
 .operation-page__content {
   max-width: 40rem;
   width: 100%;

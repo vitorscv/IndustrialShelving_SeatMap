@@ -1,57 +1,177 @@
 .seat-map {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.75rem;
 }
 
 .seat-map__shelf {
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 1rem;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 300ms ease, transform 200ms ease, box-shadow 200ms ease;
 }
 
-.seat-map__meta {
-  color: #868e96;
-  font-weight: 400;
-  font-size: 0.9rem;
+/* Toggled shortly after mount (see SeatMap.tsx) — a plain transition here
+   (instead of a @keyframes animation) so the hover lift below can still
+   override `transform` afterwards; a filled animation would otherwise keep
+   winning over :hover for that property. */
+.seat-map__shelf--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.seat-map__shelf:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+.seat-map__shelf-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.seat-map__shelf-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.seat-map__shelf h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+/* Purely decorative "system status" pill — not tied to any real backend
+   field, always reads ONLINE. */
+.seat-map__online-badge {
+  flex-shrink: 0;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--color-success);
+  background-color: color-mix(in srgb, var(--color-success) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-success) 45%, transparent);
+  border-radius: 999px;
+}
+
+.seat-map__shelf-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.seat-map__shelf-stats strong {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.seat-map__shelf-stats-occupied strong {
+  color: var(--color-danger);
+}
+
+.seat-map__shelf-stats-free strong {
+  color: var(--color-success);
+}
+
+.seat-map__occupancy-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+}
+
+.seat-map__occupancy-bar {
+  flex: 1;
+  height: 5px;
+  background-color: var(--color-bg);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.seat-map__occupancy-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-success), var(--color-danger));
+  border-radius: 999px;
+  transition: width 300ms ease;
+}
+
+.seat-map__occupancy-bar-label {
+  flex-shrink: 0;
+  min-width: 2rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+/* Single scroll container for the whole shelf grid — all 5 level rows
+   scroll together under one scrollbar, instead of each row scrolling
+   independently. overflow-y is explicitly hidden (not left to default):
+   `overflow-x: auto` alone makes the UA treat overflow-y as auto too, and
+   with a classic (non-overlay) OS scrollbar — as on Windows, unlike the
+   overlay scrollbars this was originally checked against — the horizontal
+   bar's own reserved height can trip that into showing an unwanted second,
+   vertical scrollbar on an otherwise exactly-fitting auto-height box. */
+.seat-map__grid {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.25rem;
 }
 
 .seat-map__level {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-top: 0.5rem;
+  margin-top: 0.65rem;
 }
 
+/* Sticky to the grid's own scrollport, not the row — stays pinned to the
+   left edge while the cells beside it scroll underneath. Height matches
+   the position cells (2.5rem) so the opaque background covers the row's
+   full height — a text-only auto-height label would only mask a thin
+   strip, leaving the top/bottom of scrolled cells peeking through. */
 .seat-map__level-label {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
   width: 5rem;
+  height: 2.5rem;
   flex-shrink: 0;
-  font-size: 0.85rem;
-  color: #495057;
+  padding-right: 0.5rem;
+  background-color: var(--color-surface);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-/* Fixed-size cells, never shrunk — a row wider than the card scrolls
-   horizontally instead of wrapping or squeezing numbers unreadable. */
+/* Fixed-size cells, never shrunk — a grid wider than the card scrolls
+   horizontally instead of wrapping or squeezing numbers unreadable.
+   position + z-index here pins its own stacking context below the sticky
+   label — each cell is itself `position: relative` (for its hover sheen),
+   and without this, one could still paint over the label's edge as it
+   scrolls underneath instead of staying tucked behind it. */
 .seat-map__row {
+  position: relative;
+  z-index: 0;
   display: flex;
   gap: 0.5rem;
   flex-wrap: nowrap;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
 }
 
 .seat-map__row .position-cell {
   flex-shrink: 0;
-}
-
-.seat-map__details {
-  position: fixed;
-  right: 1.5rem;
-  bottom: 1.5rem;
-  background: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  min-width: 200px;
 }

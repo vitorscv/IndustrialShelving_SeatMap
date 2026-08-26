@@ -8,6 +8,9 @@ interface UsePositionsPollingResult {
   shelves: Shelf[];
   loading: boolean;
   error: string | null;
+  // Wall-clock time of the last successful fetch — null until the first
+  // one lands. Used to drive "Atualizado agora / há Xs" style indicators.
+  lastUpdated: Date | null;
   refresh: () => void;
 }
 
@@ -15,6 +18,7 @@ export function usePositionsPolling(): UsePositionsPollingResult {
   const [shelves, setShelves] = useState<Shelf[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [refreshIndex, setRefreshIndex] = useState(0);
 
   useEffect(() => {
@@ -26,6 +30,7 @@ export function usePositionsPolling(): UsePositionsPollingResult {
         if (!cancelled) {
           setShelves(data);
           setError(null);
+          setLastUpdated(new Date());
         }
       } catch (err) {
         if (!cancelled) {
@@ -49,5 +54,5 @@ export function usePositionsPolling(): UsePositionsPollingResult {
 
   const refresh = () => setRefreshIndex((index) => index + 1);
 
-  return { shelves, loading, error, refresh };
+  return { shelves, loading, error, lastUpdated, refresh };
 }

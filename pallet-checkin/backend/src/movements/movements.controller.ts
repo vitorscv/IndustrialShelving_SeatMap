@@ -1,6 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MovementsService } from './movements.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
+import { ListMovementsDto } from './dto/list-movements.dto';
 
 @Controller('movements')
 export class MovementsController {
@@ -9,5 +11,11 @@ export class MovementsController {
   @Post()
   create(@Body() dto: CreateMovementDto) {
     return this.movementsService.create(dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  findAll(@Query() query: ListMovementsDto) {
+    return this.movementsService.findAll(query);
   }
 }

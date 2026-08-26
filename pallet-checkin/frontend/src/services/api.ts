@@ -1,4 +1,12 @@
-import type { CreateMovementInput, Movement, OccupancySummary, Position, Shelf } from '../types/position';
+import type {
+  CreateMovementInput,
+  ListMovementsParams,
+  Movement,
+  OccupancySummary,
+  PaginatedMovements,
+  Position,
+  Shelf,
+} from '../types/position';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
@@ -35,5 +43,21 @@ export function createMovement(
   return request('/movements', {
     method: 'POST',
     body: JSON.stringify(input),
+  });
+}
+
+export function fetchMovements(
+  token: string,
+  params: ListMovementsParams = {},
+): Promise<PaginatedMovements> {
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== '') {
+      query.set(key, String(value));
+    }
+  }
+  const queryString = query.toString();
+  return request<PaginatedMovements>(`/movements${queryString ? `?${queryString}` : ''}`, {
+    headers: { Authorization: `Bearer ${token}` },
   });
 }

@@ -1,0 +1,78 @@
+.position-list-view {
+  overflow-x: auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.position-list-view__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.position-list-view__table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.position-list-view__table td {
+  padding: 0.65rem 1rem;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.position-list-view__table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.position-list-view__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.position-list-view__table tbody tr:hover td {
+  background-color: var(--color-bg);
+}
+
+.position-list-view__row--selected td {
+  background-color: color-mix(in srgb, var(--color-brand-accent) 12%, transparent);
+}
+
+.position-list-view__empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 2rem !important;
+  cursor: default;
+}
+
+.position-list-view__badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.position-list-view__badge--free {
+  color: var(--color-success);
+  background-color: color-mix(in srgb, var(--color-success) 18%, transparent);
+}
+
+.position-list-view__badge--occupied {
+  color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 18%, transparent);
+}
+
+.position-list-view__badge--blocked {
+  color: var(--color-warning);
+  background-color: color-mix(in srgb, var(--color-warning) 18%, transparent);
+}

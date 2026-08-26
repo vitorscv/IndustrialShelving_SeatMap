@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { usePositionsPolling } from '../../hooks/usePositionsPolling';
 import { createMovement } from '../../services/api';
 import type { MovementType, Position, Shelf } from '../../types/position';
+import { AppHeader } from '../../components/AppHeader/AppHeader';
 import { IntentPicker } from './components/IntentPicker';
 import { PalletInfoForm } from './components/PalletInfoForm';
 import { CheckinSummary } from './components/CheckinSummary';
@@ -169,16 +170,7 @@ export function OperationPage() {
 
   return (
     <div className="operation-page">
-      <header className="operation-page__header">
-        <div className="operation-page__brand">
-          <img
-            src="/logo-pantex-sophisticated.svg"
-            alt="Pantex Embalagens Industriais"
-            className="operation-page__logo"
-          />
-          <h1 className="operation-page__brand-subtitle">Check-in / check-out de paletes</h1>
-        </div>
-      </header>
+      <AppHeader subtitle="Check-in / check-out de paletes" />
 
       <div className="operation-page__content">
         {loading && <p className="operation-page__muted">Carregando posições...</p>}

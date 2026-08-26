@@ -1,0 +1,39 @@
+.dashboard-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.dashboard-skeleton__shelf {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-skeleton__title {
+  width: 8rem;
+  height: 1.1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  background-color: var(--color-border);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.dashboard-skeleton__row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dashboard-skeleton__cell {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background-color: var(--color-border);
+  animation: pulse 1.4s ease-in-out infinite;
+}

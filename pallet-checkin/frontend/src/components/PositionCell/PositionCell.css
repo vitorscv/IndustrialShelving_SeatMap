@@ -1,10 +1,34 @@
 .position-cell {
-  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
   border: 2px solid transparent;
   font-family: var(--font-sans);
   font-weight: 700;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  opacity: 1;
+  transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease,
+    opacity 150ms ease;
+}
+
+/* Doesn't match the active search — stays in place (not hidden) so the
+   grid layout never jumps around while typing. */
+.position-cell--dimmed {
+  opacity: 0.3;
+}
+
+/* Very light top-down sheen on top of the flat status color — just enough
+   to read as "raised" instead of a completely flat rectangle. */
+.position-cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 60%);
+  pointer-events: none;
+}
+
+.position-cell:hover:not(:disabled) {
+  transform: scale(1.05);
 }
 
 .position-cell:disabled {
@@ -40,6 +64,20 @@
 .position-cell--blocked {
   background-color: var(--color-border);
   color: var(--color-text-secondary);
+}
+
+/* Hover shadow tinted with the cell's own status color, derived from the
+   existing theme tokens (no new colors introduced). */
+.position-cell--free:hover:not(:disabled) {
+  box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--color-success) 55%, transparent);
+}
+
+.position-cell--occupied:hover:not(:disabled) {
+  box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--color-danger) 55%, transparent);
+}
+
+.position-cell--blocked:hover:not(:disabled) {
+  box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--color-border) 70%, transparent);
 }
 
 .position-cell--selected {

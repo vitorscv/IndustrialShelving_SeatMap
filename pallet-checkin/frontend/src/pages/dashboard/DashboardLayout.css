@@ -1,0 +1,12 @@
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
+
+.dashboard-layout__main {
+  flex: 1;
+  min-width: 0;
+}

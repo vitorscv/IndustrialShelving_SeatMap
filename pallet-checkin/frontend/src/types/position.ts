@@ -53,3 +53,35 @@ export interface OccupancySummary {
   blocked: number;
   occupancyRate: number;
 }
+
+export interface MovementListItem {
+  id: string;
+  timestamp: string;
+  type: MovementType;
+  palletCode: string;
+  orderNumber: string;
+  product: string;
+  operatorName: string;
+  positionId: string;
+  shelfId: string;
+  shelfTitle: string;
+  level: string;
+  number: number;
+}
+
+export interface PaginatedMovements {
+  data: MovementListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface ListMovementsParams {
+  page?: number;
+  limit?: number;
+  shelfId?: string;
+  positionId?: string;
+  from?: string;
+  to?: string;
+}

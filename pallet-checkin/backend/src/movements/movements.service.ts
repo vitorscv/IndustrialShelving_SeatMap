@@ -1,8 +1,9 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { MovementType, PositionStatus } from '@prisma/client';
+import { MovementType, Prisma, PositionStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { PositionsService } from '../positions/positions.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
+import { ListMovementsDto } from './dto/list-movements.dto';
 
 @Injectable()
 export class MovementsService {
@@ -67,5 +68,57 @@ export class MovementsService {
 
       return { movement, position: updatedPosition };
     });
+  }
+
+  async findAll(query: ListMovementsDto) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+
+    const where: Prisma.MovementWhereInput = {};
+    // positionId is the narrower filter (used by the side panel's "Histórico
+    // da posição" link) — takes precedence when both are somehow present.
+    if (query.positionId) {
+      where.positionId = query.positionId;
+    } else if (query.shelfId) {
+      where.position = { shelfId: query.shelfId };
+    }
+    if (query.from || query.to) {
+      where.timestamp = {
+        ...(query.from ? { gte: new Date(query.from) } : {}),
+        ...(query.to ? { lte: new Date(query.to) } : {}),
+      };
+    }
+
+    const [total, movements] = await this.prisma.$transaction([
+      this.prisma.movement.count({ where }),
+      this.prisma.movement.findMany({
+        where,
+        include: { position: { include: { shelf: true } } },
+        orderBy: { timestamp: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
+
+    return {
+      data: movements.map((movement) => ({
+        id: movement.id,
+        timestamp: movement.timestamp,
+        type: movement.type,
+        palletCode: movement.palletCode,
+        orderNumber: movement.orderNumber,
+        product: movement.product,
+        operatorName: movement.operatorName,
+        positionId: movement.positionId,
+        shelfId: movement.position.shelfId,
+        shelfTitle: movement.position.shelf.title,
+        level: movement.position.level,
+        number: movement.position.number,
+      })),
+      total,
+      page,
+      limit,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+    };
   }
 }

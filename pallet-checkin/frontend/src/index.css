@@ -5,6 +5,32 @@
 
 * {
   box-sizing: border-box;
+  /* Thin, theme-colored scrollbars everywhere (page scroll, the SeatMap
+     grid's horizontal scroll, etc.) instead of the OS default — the
+     default classic Windows scrollbar reads as a bulky, out-of-theme
+     leftover next to an otherwise dark, modern UI. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-text-secondary);
 }
 
 body {
@@ -15,13 +41,25 @@ body {
   min-height: 100vh;
 }
 
-.page {
-  padding: 1.5rem;
+/* Shared entrance/loading animations, used across dashboard cards and
+   their skeleton placeholders so every page pulls from the same timing. */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.page__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }

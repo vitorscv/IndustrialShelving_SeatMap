@@ -1,29 +1,199 @@
 .occupancy-summary {
   display: flex;
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
 }
 
 .occupancy-summary__stat {
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
-  padding: 0.75rem 1.25rem;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  min-width: 5rem;
+  gap: 0.35rem;
+  padding: 1rem 1.5rem;
+  min-width: 5.5rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 250ms ease both;
+}
+
+.occupancy-summary__stat:nth-child(1) {
+  animation-delay: 0ms;
+}
+.occupancy-summary__stat:nth-child(2) {
+  animation-delay: 40ms;
+}
+.occupancy-summary__stat:nth-child(3) {
+  animation-delay: 80ms;
+}
+.occupancy-summary__stat:nth-child(4) {
+  animation-delay: 120ms;
+}
+.occupancy-summary__stat:nth-child(5) {
+  animation-delay: 160ms;
+}
+
+/* Soft gradient tint per status, fading into the card's own surface color
+   — the card reads as colored overall instead of only accented on one
+   edge. Layered via background-image (not background-color) so it sits
+   on top of --color-surface without needing to hardcode a new base tone. */
+.occupancy-summary__stat--free {
+  background-image: radial-gradient(
+    circle at top left,
+    color-mix(in srgb, var(--color-success) 22%, transparent),
+    transparent 70%
+  );
+}
+
+.occupancy-summary__stat--occupied {
+  background-image: radial-gradient(
+    circle at top left,
+    color-mix(in srgb, var(--color-danger) 22%, transparent),
+    transparent 70%
+  );
+}
+
+.occupancy-summary__stat--blocked {
+  background-image: radial-gradient(
+    circle at top left,
+    color-mix(in srgb, var(--color-warning) 22%, transparent),
+    transparent 70%
+  );
+}
+
+.occupancy-summary__icon {
+  color: var(--color-text-secondary);
+}
+
+.occupancy-summary__icon--free {
+  color: var(--color-success);
+}
+
+.occupancy-summary__icon--occupied {
+  color: var(--color-danger);
+}
+
+.occupancy-summary__icon--blocked {
+  color: var(--color-warning);
 }
 
 .occupancy-summary__value {
   font-size: 1.5rem;
   font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.occupancy-summary__value--free {
+  color: var(--color-success);
+}
+
+.occupancy-summary__value--occupied {
+  color: var(--color-danger);
+}
+
+.occupancy-summary__value--blocked {
+  color: var(--color-warning);
 }
 
 .occupancy-summary__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.occupancy-summary__sublabel {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  opacity: 0.85;
+}
+
+/* Occupancy-rate card — a circular gauge instead of a plain number, laid
+   out as a row (ring + text) rather than the other cards' centered column.
+   Stays neutral (no gradient tint), same as the Total card. */
+.occupancy-summary__stat--gauge {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  text-align: left;
+}
+
+.occupancy-summary__gauge {
+  flex-shrink: 0;
+}
+
+.occupancy-summary__gauge-track {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 6;
+}
+
+.occupancy-summary__gauge-fill {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 400ms ease;
+}
+
+.occupancy-summary__gauge-text {
+  fill: var(--color-text-primary);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+}
+
+.occupancy-summary__gauge-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.occupancy-summary__gauge-message {
   font-size: 0.8rem;
-  color: #868e96;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.occupancy-summary__muted {
+  margin: 0;
+  color: var(--color-text-secondary);
 }
 
 .occupancy-summary__error {
-  color: #e03131;
+  margin: 0;
+  color: var(--color-danger);
+}
+
+/* Skeleton loading state — same card shape, pulsing placeholder blocks
+   instead of the real icon/value/label, so the first paint isn't blank. */
+.occupancy-summary__stat.occupancy-summary__stat--skeleton {
+  animation: none;
+}
+
+.occupancy-summary__skeleton-icon,
+.occupancy-summary__skeleton-value,
+.occupancy-summary__skeleton-label {
+  border-radius: 4px;
+  background-color: var(--color-border);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.occupancy-summary__skeleton-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+.occupancy-summary__skeleton-value {
+  width: 2.5rem;
+  height: 1.5rem;
+}
+
+.occupancy-summary__skeleton-label {
+  width: 3.5rem;
+  height: 0.75rem;
 }

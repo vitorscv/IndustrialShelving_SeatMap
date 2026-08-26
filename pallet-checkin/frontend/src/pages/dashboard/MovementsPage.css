@@ -1,0 +1,185 @@
+.movements-page__header {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.movements-page__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.movements-page__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 2rem;
+}
+
+.movements-page__scope-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: color-mix(in srgb, var(--color-brand-accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-brand-accent) 45%, transparent);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.movements-page__scope-clear {
+  padding: 0.35rem 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.movements-page__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+}
+
+.movements-page__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.movements-page__filter select,
+.movements-page__filter input {
+  padding: 0.5rem 0.65rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.movements-page__filter select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.movements-page__error {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.movements-page__table-wrap {
+  overflow-x: auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.movements-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.movements-page__table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.movements-page__table td {
+  padding: 0.7rem 1rem;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.movements-page__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.movements-page__table tbody tr:hover td {
+  background-color: var(--color-bg);
+}
+
+.movements-page__empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 2rem !important;
+}
+
+.movements-page__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.movements-page__type--in {
+  color: var(--color-success);
+  background-color: color-mix(in srgb, var(--color-success) 18%, transparent);
+}
+
+.movements-page__type--out {
+  color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 18%, transparent);
+}
+
+.movements-page__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.movements-page__pagination button {
+  padding: 0.5rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.movements-page__pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
