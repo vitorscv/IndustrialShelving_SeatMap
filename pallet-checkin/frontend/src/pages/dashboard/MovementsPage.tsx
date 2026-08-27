@@ -131,10 +131,10 @@ export function MovementsPage() {
                 <th>Estante</th>
                 <th>Nível</th>
                 <th>Posição</th>
-                <th>Pedido</th>
+                <th>Pedido/Cliente</th>
                 <th>Produto</th>
-                <th>Palete</th>
-                <th>Operador</th>
+                <th>Quantidade</th>
+                <th>Vendedor/Cidade</th>
               </tr>
             </thead>
             <tbody>
@@ -165,8 +165,8 @@ export function MovementsPage() {
                   <td>{item.number}</td>
                   <td>{item.orderNumber}</td>
                   <td>{item.product}</td>
-                  <td>{item.palletCode}</td>
-                  <td>{item.operatorName}</td>
+                  <td>{new Intl.NumberFormat('pt-BR').format(item.quantity)}</td>
+                  <td>{item.salesInfo}</td>
                 </tr>
               ))}
             </tbody>

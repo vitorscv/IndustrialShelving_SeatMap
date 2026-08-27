@@ -45,21 +45,31 @@
 
 .seat-map__shelf h3 {
   margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--color-text-primary);
 }
 
-/* Purely decorative "system status" pill — not tied to any real backend
-   field, always reads ONLINE. */
-.seat-map__online-badge {
+/* Live-monitoring status — a small dot + muted label rather than a loud
+   filled pill, with a title tooltip explaining what it actually means
+   (not tied to any real per-shelf backend field, just reflects that this
+   dashboard is on a live poll). */
+.seat-map__status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   flex-shrink: 0;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--color-success);
-  background-color: color-mix(in srgb, var(--color-success) 18%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-success) 45%, transparent);
-  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.seat-map__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-success);
 }
 
 .seat-map__shelf-stats {
@@ -100,7 +110,17 @@
 
 .seat-map__occupancy-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-success), var(--color-danger));
+  /* Authored across the full conceptual bar width — background-size is set
+     inline (per shelf, from its real occupancy %) so this gradient's true
+     green→amber→red range is only ever revealed proportionally, never
+     compressed into a narrow fill. See SeatMap.tsx. */
+  background-image: linear-gradient(
+    90deg,
+    var(--color-success-muted) 0%,
+    var(--color-warning) 65%,
+    var(--color-danger) 100%
+  );
+  background-repeat: no-repeat;
   border-radius: 999px;
   transition: width 300ms ease;
 }
@@ -122,10 +142,34 @@
    overlay scrollbars this was originally checked against — the horizontal
    bar's own reserved height can trip that into showing an unwanted second,
    vertical scrollbar on an otherwise exactly-fitting auto-height box. */
+.seat-map__grid-wrap {
+  position: relative;
+}
+
+/* Signals "more content, scroll to see" instead of a hard visual cut —
+   fades the last visible cell out into the card's own background color.
+   Sits outside the scrolling box as a fixed overlay (not part of the
+   scrolled content), and is effectively invisible on shelves that don't
+   overflow since there's nothing but background under it either way. */
+.seat-map__grid-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0.25rem;
+  width: 2.5rem;
+  background: linear-gradient(to right, transparent, var(--color-surface));
+  pointer-events: none;
+}
+
 .seat-map__grid {
   overflow-x: auto;
   overflow-y: hidden;
   padding-bottom: 0.25rem;
+  /* Breathing room so the last cell never sits flush against the
+     scrollable edge, matching the card's own left/top padding instead of
+     looking clipped once you've scrolled all the way. */
+  padding-right: 1.5rem;
 }
 
 .seat-map__level {
@@ -151,11 +195,11 @@
   flex-shrink: 0;
   padding-right: 0.5rem;
   background-color: var(--color-surface);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
 /* Fixed-size cells, never shrunk — a grid wider than the card scrolls

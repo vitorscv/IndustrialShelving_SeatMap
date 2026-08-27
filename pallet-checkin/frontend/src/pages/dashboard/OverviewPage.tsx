@@ -7,6 +7,7 @@ import type { OccupancySummary as OccupancySummaryData, Position } from '../../t
 import { formatShelfLabel } from '../../utils/format';
 import { SeatMap } from '../../components/SeatMap/SeatMap';
 import { PositionSidePanel } from '../../components/PositionSidePanel/PositionSidePanel';
+import { MovementModal } from '../../components/MovementModal/MovementModal';
 import { OccupancySummary } from './components/OccupancySummary';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { StatusLegend } from './components/StatusLegend';
@@ -18,7 +19,7 @@ const SUMMARY_POLL_INTERVAL_MS = 7000;
 type ViewMode = 'mapa' | 'lista';
 
 export function OverviewPage() {
-  const { shelves, loading, error, lastUpdated } = usePositionsPolling();
+  const { shelves, loading, error, lastUpdated, refresh } = usePositionsPolling();
   const { token } = useAuth();
   const [summary, setSummary] = useState<OccupancySummaryData | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(true);
@@ -27,6 +28,11 @@ export function OverviewPage() {
   const [shelfFilter, setShelfFilter] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('mapa');
   const [selectedPositionId, setSelectedPositionId] = useState<string | null>(null);
+  const [movementModalOpen, setMovementModalOpen] = useState(false);
+  // Persists across the modal's opens/closes within the session — the same
+  // salesperson/city likely applies to several pallets moved in a row from
+  // the dashboard too.
+  const [salesInfo, setSalesInfo] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Ticks once a second purely to force "Atualizado há Xs" to keep
@@ -126,7 +132,7 @@ export function OverviewPage() {
                 ref={searchInputRef}
                 type="text"
                 className="overview-page__search-input"
-                placeholder="Buscar posição, produto ou lote..."
+                placeholder="Buscar posição, produto ou quantidade..."
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
               />
@@ -190,8 +196,20 @@ export function OverviewPage() {
           {!loading && !error && <StatusLegend summary={summary} />}
         </div>
 
-        <PositionSidePanel selection={selection} onClose={() => setSelectedPositionId(null)} />
+        <PositionSidePanel
+          selection={selection}
+          onClose={() => setSelectedPositionId(null)}
+          onMovimentar={() => setMovementModalOpen(true)}
+        />
       </div>
+
+      <MovementModal
+        selection={movementModalOpen ? selection : null}
+        salesInfo={salesInfo}
+        onSalesInfoChange={setSalesInfo}
+        onClose={() => setMovementModalOpen(false)}
+        onSuccess={refresh}
+      />
     </div>
   );
 }

@@ -7,6 +7,11 @@
   --color-text-primary: #f5f7fa;
   --color-text-secondary: #8b95aa; /* uppercase labels, muted text */
   --color-success: #2ecc71; /* FREE / conforme / success */
+  /* Desaturated variant for large-area fills (e.g. the ~300 FREE grid
+     cells) — keeps --color-success itself reserved for small, deliberate
+     accents (badges, icons, stat numbers) so it still reads as a signal
+     instead of visual noise repeated everywhere. */
+  --color-success-muted: #4d8a68;
   --color-warning: #f5a623; /* attention states */
   --color-danger: #e85d5d; /* OCCUPIED / error / não conforme */
   --color-brand-accent: #fbbf24; /* the yellow dot from the Pantex logo */

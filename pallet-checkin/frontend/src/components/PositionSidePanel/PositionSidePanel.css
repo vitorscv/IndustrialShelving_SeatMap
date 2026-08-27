@@ -60,7 +60,7 @@
 }
 
 .position-side-panel__eyebrow {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-text-secondary);
   text-transform: uppercase;
@@ -91,6 +91,8 @@
   margin: 0;
   color: var(--color-text-primary);
   font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .position-side-panel__subtitle {

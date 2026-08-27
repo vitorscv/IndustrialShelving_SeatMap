@@ -34,8 +34,15 @@ function OccupancyGauge({ rate }: { rate: number }) {
   const radius = 26;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - rate);
+  // Muted below 70% (the "nothing to worry about" range) so this doesn't
+  // compete as its own bright accent — vivid color here is reserved for
+  // when occupancy is genuinely high enough to be a real signal.
   const strokeColor =
-    pct < 70 ? 'var(--color-success)' : pct < 90 ? 'var(--color-warning)' : 'var(--color-danger)';
+    pct < 70
+      ? 'var(--color-success-muted)'
+      : pct < 90
+        ? 'var(--color-warning)'
+        : 'var(--color-danger)';
 
   return (
     <div className="occupancy-summary__stat occupancy-summary__stat--gauge">

@@ -17,6 +17,9 @@ export interface PositionSelection {
 interface PositionSidePanelProps {
   selection: PositionSelection | null;
   onClose: () => void;
+  // Opens the dashboard's own check-in/check-out modal for this position —
+  // the standalone operation page was retired, so this is the only flow.
+  onMovimentar: () => void;
 }
 
 const STATUS_LABELS: Record<Position['status'], string> = {
@@ -25,7 +28,7 @@ const STATUS_LABELS: Record<Position['status'], string> = {
   BLOCKED: 'Bloqueada',
 };
 
-export function PositionSidePanel({ selection, onClose }: PositionSidePanelProps) {
+export function PositionSidePanel({ selection, onClose, onMovimentar }: PositionSidePanelProps) {
   const navigate = useNavigate();
   const { token } = useAuth();
   // Kept mounted (with its own last-known content) across the null
@@ -135,7 +138,7 @@ export function PositionSidePanel({ selection, onClose }: PositionSidePanelProps
         {position.status === 'OCCUPIED' && (
           <dl className="position-side-panel__list">
             <div className="position-side-panel__row">
-              <dt>Pedido</dt>
+              <dt>Pedido/Cliente</dt>
               <dd>{position.orderNumber ?? '—'}</dd>
             </div>
             <div className="position-side-panel__row">
@@ -143,8 +146,12 @@ export function PositionSidePanel({ selection, onClose }: PositionSidePanelProps
               <dd>{position.product ?? '—'}</dd>
             </div>
             <div className="position-side-panel__row">
-              <dt>Código do palete</dt>
-              <dd>{position.palletCode ?? '—'}</dd>
+              <dt>Quantidade</dt>
+              <dd>
+                {position.quantity !== null
+                  ? new Intl.NumberFormat('pt-BR').format(position.quantity)
+                  : '—'}
+              </dd>
             </div>
             <div className="position-side-panel__row">
               <dt>Última movimentação</dt>
@@ -176,7 +183,7 @@ export function PositionSidePanel({ selection, onClose }: PositionSidePanelProps
           <button
             type="button"
             className="position-side-panel__action"
-            onClick={() => navigate('/')}
+            onClick={onMovimentar}
           >
             <ArrowLeftRight size={16} aria-hidden="true" />
             Movimentar

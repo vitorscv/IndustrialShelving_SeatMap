@@ -48,14 +48,19 @@
   font-size: 1.15rem;
 }
 
-/* --color-success/--color-danger are bright, light-toned colors, so dark
-   ink (the page's own near-black background token) reads far better on
-   top of them than white text would. */
+/* FREE uses the desaturated/muted green — with ~300 of these cells on
+   screen at once, a soft tone lets them recede so OCCUPIED (still the
+   vivid --color-danger) is what actually draws the eye. Light text here
+   (not --color-on-accent) since the muted tone is darker than the vivid
+   success/danger colors dark ink was tuned for. */
 .position-cell--free {
-  background-color: var(--color-success);
-  color: var(--color-on-accent);
+  background-color: var(--color-success-muted);
+  color: var(--color-text-primary);
 }
 
+/* --color-danger is a bright, light-toned color, so dark ink (the page's
+   own near-black background token) reads far better on top of it than
+   white text would. */
 .position-cell--occupied {
   background-color: var(--color-danger);
   color: var(--color-on-accent);

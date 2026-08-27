@@ -1,20 +1,22 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import type { MovementType, Position } from '../../../types/position';
+import type { MovementType, Position } from '../../types/position';
 import './CheckinForm.css';
 
-interface CheckinFormSubmitInput {
-  palletCode: string;
+export interface CheckinFormSubmitInput {
+  // Only meaningful (and only sent) on the CHECK_IN path — CHECK_OUT reads
+  // quantity/orderNumber/product from the Position server-side instead.
+  quantity?: number;
   orderNumber?: string;
   product?: string;
-  operatorName: string;
+  salesInfo: string;
 }
 
 interface CheckinFormProps {
   position: Position;
   shelfTitle: string;
-  operatorName: string;
-  onOperatorNameChange: (name: string) => void;
+  salesInfo: string;
+  onSalesInfoChange: (value: string) => void;
   onSubmit: (input: CheckinFormSubmitInput) => Promise<void>;
   submitting: boolean;
 }
@@ -28,14 +30,14 @@ function movementTypeFor(position: Position): MovementType {
 export function CheckinForm({
   position,
   shelfTitle,
-  operatorName,
-  onOperatorNameChange,
+  salesInfo,
+  onSalesInfoChange,
   onSubmit,
   submitting,
 }: CheckinFormProps) {
   const [orderNumber, setOrderNumber] = useState('');
   const [product, setProduct] = useState('');
-  const [palletCode, setPalletCode] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const movementType = movementTypeFor(position);
@@ -45,16 +47,17 @@ export function CheckinForm({
     event.preventDefault();
     setError(null);
     const input: CheckinFormSubmitInput = isCheckIn
-      ? { palletCode, orderNumber, product, operatorName }
-      : { palletCode: position.palletCode ?? '', operatorName };
+      ? { quantity: Number(quantity), orderNumber, product, salesInfo }
+      : { salesInfo };
     try {
       await onSubmit(input);
       setOrderNumber('');
       setProduct('');
-      setPalletCode('');
+      setQuantity('');
     } catch (err) {
-      // Surface the backend's exact message (e.g. a 409 conflict telling the
-      // operator which pallet is already there) instead of a generic error.
+      // Surface the backend's exact message (e.g. a 409 conflict — someone
+      // else already checked a pallet into this exact position) instead of
+      // a generic error.
       setError(err instanceof Error ? err.message : 'Falha ao registrar movimentação');
     }
   }
@@ -71,7 +74,7 @@ export function CheckinForm({
         {isCheckIn ? (
           <>
             <label>
-              Pedido
+              Pedido/Cliente
               <input
                 type="text"
                 value={orderNumber}
@@ -92,11 +95,13 @@ export function CheckinForm({
             </label>
 
             <label>
-              Código do palete
+              Quantidade
               <input
-                type="text"
-                value={palletCode}
-                onChange={(e) => setPalletCode(e.target.value)}
+                type="number"
+                min="1"
+                step="1"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
                 required
               />
             </label>
@@ -104,10 +109,10 @@ export function CheckinForm({
         ) : (
           <>
             <p className="checkin-form__info">
-              Palete atual: <strong>{position.palletCode}</strong>
+              Quantidade: <strong>{position.quantity}</strong>
             </p>
             <p className="checkin-form__info">
-              Pedido: <strong>{position.orderNumber}</strong>
+              Pedido/Cliente: <strong>{position.orderNumber}</strong>
             </p>
             <p className="checkin-form__info">
               Produto: <strong>{position.product}</strong>
@@ -117,11 +122,11 @@ export function CheckinForm({
       </fieldset>
 
       <label>
-        Nome do operador
+        Vendedor/Cidade
         <input
           type="text"
-          value={operatorName}
-          onChange={(e) => onOperatorNameChange(e.target.value)}
+          value={salesInfo}
+          onChange={(e) => onSalesInfoChange(e.target.value)}
           required
         />
       </label>

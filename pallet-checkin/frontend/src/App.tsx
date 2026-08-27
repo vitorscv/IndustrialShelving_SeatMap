@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AuthContext } from './services/auth';
-import { OperationPage } from './pages/operation/OperationPage';
 import { LoginPage } from './pages/login/LoginPage';
 import { DashboardLayout } from './pages/dashboard/DashboardLayout';
 import { OverviewPage } from './pages/dashboard/OverviewPage';
@@ -15,7 +14,9 @@ function App() {
   return (
     <AuthContext.Provider value={{ token, setToken }}>
       <Routes>
-        <Route path="/" element={<OperationPage />} />
+        {/* Standalone operation page was retired — operators now use the
+            dashboard's "Movimentar" popup (MovementModal) instead. */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/dashboard"
@@ -32,7 +33,7 @@ function App() {
           <Route path="produtos" element={<ComingSoonPage title="Produtos" />} />
           <Route path="relatorios" element={<ComingSoonPage title="Relatórios" />} />
         </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </AuthContext.Provider>
   );

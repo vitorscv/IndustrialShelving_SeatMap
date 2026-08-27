@@ -1,0 +1,61 @@
+.movement-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: rgba(2, 6, 16, 0.6);
+  opacity: 0;
+  transition: opacity 180ms ease;
+  z-index: 1000;
+}
+
+.movement-modal__backdrop--visible {
+  opacity: 1;
+}
+
+.movement-modal {
+  position: relative;
+  width: 100%;
+  max-width: 26rem;
+  opacity: 0;
+  transform: scale(0.95) translateY(8px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.movement-modal--visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* CheckinForm already renders its own card (padding/border/background) —
+   the modal shell stays transparent and just repositions it, instead of
+   nesting a second card inside a card. */
+.movement-modal .checkin-form {
+  margin-top: 0;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+.movement-modal__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-text-secondary);
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.movement-modal__close:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-brand-accent);
+}

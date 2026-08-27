@@ -10,19 +10,59 @@
   border-right: 1px solid var(--color-border);
   padding: 1.25rem 1rem;
   gap: 1.5rem;
+  overflow: hidden;
+  transition: width 200ms ease, padding 200ms ease;
+}
+
+.sidebar--collapsed {
+  width: 4rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .sidebar__brand {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   padding: 0.5rem 0 0.75rem;
   border-bottom: 1px solid var(--color-border);
+}
+
+.sidebar--collapsed .sidebar__brand {
+  flex-direction: column;
+  justify-content: center;
 }
 
 .sidebar__logo {
   height: 3.25rem;
   width: auto;
+  transition: height 200ms ease;
+}
+
+.sidebar__logo--mark {
+  height: 2rem;
+  border-radius: 6px;
+}
+
+.sidebar__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar__toggle:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-brand-accent);
 }
 
 .sidebar__nav {
@@ -44,7 +84,15 @@
   font-weight: 600;
   color: var(--color-text-secondary);
   text-decoration: none;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    padding 200ms ease;
+}
+
+.sidebar--collapsed .sidebar__item {
+  justify-content: center;
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
 }
 
 .sidebar__item:hover {
@@ -52,14 +100,34 @@
   color: var(--color-text-primary);
 }
 
+/* Uses the brand accent (yellow), not --color-success — green is reserved
+   for status meaning (free/occupied/blocked) elsewhere in the app; "this
+   is the current page" is navigation chrome, a different kind of signal,
+   so it gets a different, neutral-leaning treatment. */
 .sidebar__item--active {
   background-color: var(--color-bg);
-  border-left-color: var(--color-success);
-  color: var(--color-success);
+  border-left-color: var(--color-brand-accent);
+  color: var(--color-text-primary);
+  font-weight: 700;
 }
 
 .sidebar__item-icon {
   flex-shrink: 0;
+}
+
+/* Collapsed to zero width (not unmounted) — a native `title` attribute on
+   each nav link/button covers the "hover for label" requirement, so no
+   custom tooltip component is needed for this fade+shrink. */
+.sidebar__item-label {
+  overflow: hidden;
+  opacity: 1;
+  max-width: 10rem;
+  transition: opacity 150ms ease, max-width 200ms ease;
+}
+
+.sidebar--collapsed .sidebar__item-label {
+  opacity: 0;
+  max-width: 0;
 }
 
 .sidebar__logout {
@@ -75,7 +143,14 @@
   border: 1px solid var(--color-border);
   border-radius: 8px;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, color 0.15s ease, padding 200ms ease;
+}
+
+.sidebar--collapsed .sidebar__logout {
+  justify-content: center;
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
 }
 
 .sidebar__logout:hover {
@@ -90,6 +165,17 @@
   gap: 0.15rem;
   padding-top: 1rem;
   border-top: 1px solid var(--color-border);
+  overflow: hidden;
+  max-height: 3rem;
+  opacity: 1;
+  transition: opacity 150ms ease, max-height 200ms ease, padding 200ms ease;
+}
+
+.sidebar--collapsed .sidebar__footer {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  border-top-color: transparent;
 }
 
 .sidebar__footer-brand {
@@ -97,10 +183,12 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--color-text-secondary);
+  white-space: nowrap;
 }
 
 .sidebar__footer-tagline {
   font-size: 0.65rem;
   color: var(--color-text-secondary);
   opacity: 0.7;
+  white-space: nowrap;
 }

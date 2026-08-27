@@ -38,9 +38,10 @@ model Position {
   level       String
   number      Int
   status      PositionStatus @default(FREE)
-  palletCode  String?
+  quantity    Int?
   orderNumber String?
   product     String?
+  salesInfo   String?
   movements   Movement[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
@@ -53,9 +54,9 @@ model Movement {
   positionId   String
   position     Position     @relation(fields: [positionId], references: [id])
   type         MovementType
-  palletCode   String
+  quantity     Int
   orderNumber  String
   product      String
-  operatorName String
+  salesInfo    String
   timestamp    DateTime     @default(now())
 }

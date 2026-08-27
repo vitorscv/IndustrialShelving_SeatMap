@@ -29,9 +29,7 @@ export class MovementsService {
       }
 
       if (dto.type === MovementType.CHECK_IN && position.status === PositionStatus.OCCUPIED) {
-        throw new ConflictException(
-          `Position ${positionLabel} is already occupied by pallet ${position.palletCode}`,
-        );
+        throw new ConflictException(`Position ${positionLabel} is already occupied`);
       }
 
       if (dto.type === MovementType.CHECK_OUT && position.status === PositionStatus.FREE) {
@@ -42,28 +40,32 @@ export class MovementsService {
 
       const isCheckIn = dto.type === MovementType.CHECK_IN;
 
-      // On check-out the request body doesn't carry orderNumber/product —
-      // they're read from the position's current state (set at check-in)
-      // so the movement still has a full record of what was checked out.
+      // On check-out the request body doesn't carry orderNumber/product/
+      // quantity — they're read from the position's current state (set at
+      // check-in) so the movement still has a full record of what was
+      // checked out.
       const orderNumber = isCheckIn ? dto.orderNumber! : (position.orderNumber ?? 'N/A');
       const product = isCheckIn ? dto.product! : (position.product ?? 'N/A');
+      const quantity = isCheckIn ? dto.quantity! : (position.quantity ?? 0);
+      const salesInfo = isCheckIn ? dto.salesInfo! : (position.salesInfo ?? 'N/A');
 
       const movement = await tx.movement.create({
         data: {
           positionId: dto.positionId,
           type: dto.type,
-          palletCode: dto.palletCode,
+          quantity,
           orderNumber,
           product,
-          operatorName: dto.operatorName,
+          salesInfo,
         },
       });
 
       const updatedPosition = await this.positionsService.updateOccupancy(tx, dto.positionId, {
         status: isCheckIn ? PositionStatus.OCCUPIED : PositionStatus.FREE,
-        palletCode: isCheckIn ? dto.palletCode : null,
+        quantity: isCheckIn ? dto.quantity! : null,
         orderNumber: isCheckIn ? dto.orderNumber! : null,
         product: isCheckIn ? dto.product! : null,
+        salesInfo: isCheckIn ? dto.salesInfo! : null,
       });
 
       return { movement, position: updatedPosition };
@@ -105,10 +107,10 @@ export class MovementsService {
         id: movement.id,
         timestamp: movement.timestamp,
         type: movement.type,
-        palletCode: movement.palletCode,
+        quantity: movement.quantity,
         orderNumber: movement.orderNumber,
         product: movement.product,
-        operatorName: movement.operatorName,
+        salesInfo: movement.salesInfo,
         positionId: movement.positionId,
         shelfId: movement.position.shelfId,
         shelfTitle: movement.position.shelf.title,

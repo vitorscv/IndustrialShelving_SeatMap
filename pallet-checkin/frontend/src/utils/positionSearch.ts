@@ -1,8 +1,8 @@
 import type { Position } from '../types/position';
 
-// Matches the search bar's "Buscar posição, produto ou lote..." against a
-// position's identity (shelf + level + number), pallet code, product, or
-// order number — case-insensitive substring match.
+// Matches the search bar's "Buscar posição, produto ou quantidade..."
+// against a position's identity (shelf + level + number), quantity,
+// product, or order number — case-insensitive substring match.
 export function matchesPositionSearch(
   position: Position,
   shelfTitle: string,
@@ -15,7 +15,7 @@ export function matchesPositionSearch(
     `${position.level}${position.number}`,
     String(position.number),
     shelfTitle,
-    position.palletCode,
+    position.quantity !== null ? String(position.quantity) : null,
     position.product,
     position.orderNumber,
   ];

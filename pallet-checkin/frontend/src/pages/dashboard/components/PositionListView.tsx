@@ -46,8 +46,8 @@ export function PositionListView({
             <th>Estante</th>
             <th>Status</th>
             <th>Produto</th>
-            <th>Pedido</th>
-            <th>Palete</th>
+            <th>Pedido/Cliente</th>
+            <th>Quantidade</th>
           </tr>
         </thead>
         <tbody>
@@ -79,7 +79,11 @@ export function PositionListView({
               </td>
               <td>{position.product ?? '—'}</td>
               <td>{position.orderNumber ?? '—'}</td>
-              <td>{position.palletCode ?? '—'}</td>
+              <td>
+                {position.quantity !== null
+                  ? new Intl.NumberFormat('pt-BR').format(position.quantity)
+                  : '—'}
+              </td>
             </tr>
           ))}
         </tbody>
