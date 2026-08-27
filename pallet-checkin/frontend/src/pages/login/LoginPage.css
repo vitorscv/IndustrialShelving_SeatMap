@@ -3,33 +3,90 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
+
+.login-page__logo {
+  display: block;
+  height: 2.5rem;
+  margin: 0 auto 1.5rem;
 }
 
 .login-page__form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  width: 20rem;
+  gap: 1rem;
+  width: 22rem;
   padding: 2rem;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background-color: var(--color-surface);
+}
+
+.login-page__form h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+  text-align: center;
 }
 
 .login-page__form label {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .login-page__form input {
-  padding: 0.5rem;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
+  padding: 0.75rem;
+  font-family: var(--font-sans);
   font-size: 1rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text-primary);
+}
+
+.login-page__form input:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
+}
+
+.login-page__form button {
+  padding: 0.85rem;
+  margin-top: 0.25rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: var(--color-brand-accent);
+  color: var(--color-on-accent);
+}
+
+.login-page__form button:disabled {
+  background-color: var(--color-border);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
 }
 
 .login-page__error {
-  color: #e03131;
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 4px;
+  background-color: rgba(232, 93, 93, 0.12);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
   font-size: 0.85rem;
 }

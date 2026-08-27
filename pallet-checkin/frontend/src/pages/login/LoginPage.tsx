@@ -30,6 +30,11 @@ export function LoginPage() {
   return (
     <div className="login-page">
       <form className="login-page__form" onSubmit={handleSubmit}>
+        <img
+          src="/logo-pantex-sophisticated.svg"
+          alt="Pantex Embalagens Industriais"
+          className="login-page__logo"
+        />
         <h1>Dashboard login</h1>
         <label>
           Username
