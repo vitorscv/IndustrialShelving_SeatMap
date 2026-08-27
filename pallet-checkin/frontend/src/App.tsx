@@ -4,6 +4,7 @@ import { AuthContext } from './services/auth';
 import { LoginPage } from './pages/login/LoginPage';
 import { DashboardLayout } from './pages/dashboard/DashboardLayout';
 import { OverviewPage } from './pages/dashboard/OverviewPage';
+import { EstantesPage } from './pages/dashboard/EstantesPage';
 import { MovementsPage } from './pages/dashboard/MovementsPage';
 import { ComingSoonPage } from './pages/dashboard/ComingSoonPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
@@ -27,8 +28,7 @@ function App() {
           }
         >
           <Route index element={<OverviewPage />} />
-          {/* No dedicated shelf list yet — reuses the same Visão Geral view. */}
-          <Route path="estantes" element={<OverviewPage />} />
+          <Route path="estantes" element={<EstantesPage />} />
           <Route path="movimentacoes" element={<MovementsPage />} />
           <Route path="produtos" element={<ComingSoonPage title="Produtos" />} />
           <Route path="relatorios" element={<ComingSoonPage title="Relatórios" />} />

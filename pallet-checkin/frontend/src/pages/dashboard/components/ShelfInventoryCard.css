@@ -1,0 +1,145 @@
+.shelf-inventory-card {
+  padding: 1.25rem 1.5rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-sans);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.shelf-inventory-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+.shelf-inventory-card__title {
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.shelf-inventory-card__title--editable {
+  cursor: text;
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  margin-left: -0.35rem;
+  transition: background-color 0.15s ease;
+}
+
+.shelf-inventory-card__title--editable:hover {
+  background-color: var(--color-bg);
+}
+
+.shelf-inventory-card__title-form {
+  margin: 0 0 1rem;
+}
+
+.shelf-inventory-card__title-input {
+  width: 100%;
+  padding: 0.1rem 0.35rem;
+  margin-left: -0.35rem;
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-brand-accent);
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
+}
+
+.shelf-inventory-card__title-input:focus {
+  outline: none;
+}
+
+.shelf-inventory-card__title-error {
+  margin: -0.6rem 0 0.9rem;
+  color: var(--color-danger);
+  font-size: 0.75rem;
+}
+
+.shelf-inventory-card__stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 0.9rem;
+}
+
+.shelf-inventory-card__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.shelf-inventory-card__stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.shelf-inventory-card__stat-value--occupied {
+  color: var(--color-danger);
+}
+
+.shelf-inventory-card__stat-value--free {
+  color: var(--color-success);
+}
+
+.shelf-inventory-card__stat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.shelf-inventory-card__bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.shelf-inventory-card__bar {
+  flex: 1;
+  height: 5px;
+  background-color: var(--color-bg);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.shelf-inventory-card__bar-fill {
+  height: 100%;
+  background-image: linear-gradient(
+    90deg,
+    var(--color-success-muted) 0%,
+    var(--color-warning) 65%,
+    var(--color-danger) 100%
+  );
+}
+
+.shelf-inventory-card__bar-label {
+  flex-shrink: 0;
+  min-width: 2rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+/* Always rendered as part of the card's normal layout — the page had a lot
+   of empty space below the stats, so the full layout thumbnail is no
+   longer gated behind hover. */
+.shelf-inventory-card__preview {
+  margin-top: 0.75rem;
+}
+
+.shelf-inventory-card__locations-caption {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+}

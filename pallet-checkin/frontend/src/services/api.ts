@@ -1,5 +1,7 @@
 import type {
   CreateMovementInput,
+  CreateShelfInput,
+  CreateShelfResult,
   ListMovementsParams,
   Movement,
   OccupancySummary,
@@ -46,6 +48,22 @@ export function fetchShelves(token: string): Promise<Shelf[]> {
 export function fetchOccupancySummary(token: string): Promise<OccupancySummary> {
   return request<OccupancySummary>('/shelves/occupancy-summary', {
     headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function createShelf(input: CreateShelfInput, token: string): Promise<CreateShelfResult> {
+  return request('/shelves', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateShelfTitle(id: string, title: string, token: string): Promise<Shelf> {
+  return request(`/shelves/${id}`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ title }),
   });
 }
 

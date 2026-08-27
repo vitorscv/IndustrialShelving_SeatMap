@@ -25,6 +25,20 @@ export interface Shelf {
   updatedAt: string;
 }
 
+export interface CreateShelfInput {
+  title: string;
+  locations: number;
+}
+
+export interface CreateShelfResult {
+  id: string;
+  title: string;
+  locations: number;
+  createdAt: string;
+  updatedAt: string;
+  positionCount: number;
+}
+
 export interface Movement {
   id: string;
   positionId: string;

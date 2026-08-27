@@ -1,0 +1,34 @@
+.shelf-mini-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.shelf-mini-grid__row {
+  display: flex;
+  gap: 1px;
+  height: 6px;
+}
+
+.shelf-mini-grid__cell {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  border-radius: 1px;
+}
+
+/* Same status→color mapping as PositionCell.css (--color-success-muted /
+   --color-danger / --color-border) — reused deliberately so a shelf's
+   thumbnail always agrees with its full-size grid elsewhere in the app. */
+.shelf-mini-grid__cell--free {
+  background-color: var(--color-success-muted);
+}
+
+.shelf-mini-grid__cell--occupied {
+  background-color: var(--color-danger);
+}
+
+.shelf-mini-grid__cell--blocked {
+  background-color: var(--color-border);
+}
