@@ -2,6 +2,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ShelvesService } from './shelves.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('shelves')
 export class ShelvesController {
   constructor(private readonly shelvesService: ShelvesService) {}
@@ -11,7 +12,6 @@ export class ShelvesController {
     return this.shelvesService.findAllWithPositions();
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('occupancy-summary')
   getOccupancySummary() {
     return this.shelvesService.getOccupancySummary();

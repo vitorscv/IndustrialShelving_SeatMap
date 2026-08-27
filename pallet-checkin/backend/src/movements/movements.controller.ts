@@ -4,6 +4,7 @@ import { MovementsService } from './movements.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { ListMovementsDto } from './dto/list-movements.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('movements')
 export class MovementsController {
   constructor(private readonly movementsService: MovementsService) {}
@@ -13,7 +14,6 @@ export class MovementsController {
     return this.movementsService.create(dto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   findAll(@Query() query: ListMovementsDto) {
     return this.movementsService.findAll(query);

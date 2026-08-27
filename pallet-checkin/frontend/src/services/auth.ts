@@ -9,9 +9,13 @@ export async function login(username: string, password: string): Promise<string>
     body: JSON.stringify({ username, password }),
   });
 
+  if (response.status === 429) {
+    throw new Error('Muitas tentativas de login. Aguarde alguns minutos e tente novamente.');
+  }
+
   if (!response.ok) {
     const body = await response.json().catch(() => null);
-    throw new Error(body?.message ?? 'Invalid credentials');
+    throw new Error(body?.message ?? 'Credenciais inválidas');
   }
 
   const data = (await response.json()) as { accessToken: string };

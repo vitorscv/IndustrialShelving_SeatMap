@@ -1,16 +1,21 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { PrismaModule } from '../prisma/prisma.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { getJwtSecret } from './jwt-secret';
 
 @Module({
   imports: [
+    PrismaModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET ?? 'dev-only-secret-change-me',
-      signOptions: { expiresIn: '8h' },
+      secret: getJwtSecret(),
+      // One work shift — not indefinite. Forces re-login instead of a
+      // token that stays valid forever if it ever leaks.
+      signOptions: { expiresIn: '8h', algorithm: 'HS256' },
     }),
   ],
   controllers: [AuthController],

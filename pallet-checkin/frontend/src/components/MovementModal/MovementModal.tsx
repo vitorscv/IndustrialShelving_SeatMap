@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import type { Position } from '../../types/position';
 import { createMovement } from '../../services/api';
+import { useAuth } from '../../services/auth';
 import { CheckinForm, type CheckinFormSubmitInput } from '../CheckinForm/CheckinForm';
 import './MovementModal.css';
 
@@ -37,6 +38,7 @@ export function MovementModal({
   onClose,
   onSuccess,
 }: MovementModalProps) {
+  const { token } = useAuth();
   const [content, setContent] = useState<MovementSelection | null>(null);
   const [visible, setVisible] = useState(false);
   const closeTimeoutRef = useRef<number | null>(null);
@@ -80,14 +82,17 @@ export function MovementModal({
   async function handleSubmit(input: CheckinFormSubmitInput) {
     setSubmitting(true);
     try {
-      await createMovement({
-        positionId: position.id,
-        type: position.status === 'OCCUPIED' ? 'CHECK_OUT' : 'CHECK_IN',
-        quantity: input.quantity,
-        orderNumber: input.orderNumber,
-        product: input.product,
-        salesInfo: input.salesInfo,
-      });
+      await createMovement(
+        {
+          positionId: position.id,
+          type: position.status === 'OCCUPIED' ? 'CHECK_OUT' : 'CHECK_IN',
+          quantity: input.quantity,
+          orderNumber: input.orderNumber,
+          product: input.product,
+          salesInfo: input.salesInfo,
+        },
+        token!,
+      );
       onSuccess();
       onClose();
     } finally {

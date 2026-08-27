@@ -1,22 +1,79 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
-// No User model / roles / multi-tenancy: this only gates the read-only
-// management dashboard, so credentials are configured via env vars for now.
+const BCRYPT_COST_FACTOR = 12;
+
+// A real bcrypt hash of an arbitrary fixed string (cost 12) — used only to
+// give the "user not found" path a bcrypt.compare() to run, so it costs
+// roughly the same time as the "wrong password" path. Without this, an
+// attacker could time responses to tell which usernames exist even though
+// the error message itself is identical either way.
+const DUMMY_HASH_FOR_TIMING_SAFETY = '$2b$12$gleIpL5SoLhjGAsqeSyUQ.Ik.6YI1.Ub9JEWqCz5GRilID8D5494u';
+
+// Every query that touches User explicitly selects only these columns —
+// passwordHash must never be attached to an object that could be returned
+// from an API response, so it's never even fetched outside this service's
+// own login check.
+const SAFE_USER_SELECT = {
+  id: true,
+  username: true,
+  createdAt: true,
+  updatedAt: true,
+} satisfies Prisma.UserSelect;
+
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  login(dto: LoginDto) {
-    const expectedUsername = process.env.DASHBOARD_USERNAME ?? 'admin';
-    const expectedPassword = process.env.DASHBOARD_PASSWORD ?? 'admin123';
+  async login(dto: LoginDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { username: dto.username },
+      select: { id: true, username: true, passwordHash: true },
+    });
 
-    if (dto.username !== expectedUsername || dto.password !== expectedPassword) {
-      throw new UnauthorizedException('Invalid credentials');
+    const passwordMatches = await bcrypt.compare(
+      dto.password,
+      user?.passwordHash ?? DUMMY_HASH_FOR_TIMING_SAFETY,
+    );
+
+    // Same exception, same message, whether the username doesn't exist or
+    // the password is wrong — distinguishing the two lets an attacker
+    // enumerate valid usernames.
+    if (!user || !passwordMatches) {
+      throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const accessToken = this.jwtService.sign({ sub: dto.username, username: dto.username });
+    // Minimal claims only — the JWT payload is base64-encoded, not
+    // encrypted, so nothing sensitive belongs in it.
+    const accessToken = this.jwtService.sign({ sub: user.id, username: user.username });
     return { accessToken };
+  }
+
+  // Requires an already-valid JWT to call (enforced by the guard on the
+  // controller route) — there is no public/unauthenticated way to create a
+  // user. The very first user is created by prisma/seed-admin.ts instead.
+  async createUser(dto: CreateUserDto) {
+    const existing = await this.prisma.user.findUnique({
+      where: { username: dto.username },
+      select: { id: true },
+    });
+    if (existing) {
+      throw new ConflictException('Username already exists');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, BCRYPT_COST_FACTOR);
+
+    return this.prisma.user.create({
+      data: { username: dto.username, passwordHash },
+      select: SAFE_USER_SELECT,
+    });
   }
 }

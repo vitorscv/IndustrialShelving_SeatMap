@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fetchShelves } from '../services/api';
+import { useAuth } from '../services/auth';
 import type { Shelf } from '../types/position';
 
 const POLL_INTERVAL_MS = 7000;
@@ -15,6 +16,7 @@ interface UsePositionsPollingResult {
 }
 
 export function usePositionsPolling(): UsePositionsPollingResult {
+  const { token } = useAuth();
   const [shelves, setShelves] = useState<Shelf[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,11 +24,12 @@ export function usePositionsPolling(): UsePositionsPollingResult {
   const [refreshIndex, setRefreshIndex] = useState(0);
 
   useEffect(() => {
+    if (!token) return;
     let cancelled = false;
 
     async function load() {
       try {
-        const data = await fetchShelves();
+        const data = await fetchShelves(token!);
         if (!cancelled) {
           setShelves(data);
           setError(null);
@@ -50,7 +53,7 @@ export function usePositionsPolling(): UsePositionsPollingResult {
       cancelled = true;
       clearInterval(intervalId);
     };
-  }, [refreshIndex]);
+  }, [refreshIndex, token]);
 
   const refresh = () => setRefreshIndex((index) => index + 1);
 

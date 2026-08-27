@@ -19,6 +19,16 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     },
   });
 
+  if (response.status === 401) {
+    // Token missing/invalid/expired — the session is dead either way, so
+    // bounce to the login screen instead of letting every caller render a
+    // broken "Failed to load..." state. A hard redirect is intentional:
+    // the token lives only in React state (never persisted), so there is
+    // no in-memory session worth preserving through a softer transition.
+    window.location.href = '/login';
+    throw new Error('Sessão expirada. Faça login novamente.');
+  }
+
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new Error(body?.message ?? `Request to ${path} failed with status ${response.status}`);
@@ -27,8 +37,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export function fetchShelves(): Promise<Shelf[]> {
-  return request<Shelf[]>('/shelves');
+export function fetchShelves(token: string): Promise<Shelf[]> {
+  return request<Shelf[]>('/shelves', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 export function fetchOccupancySummary(token: string): Promise<OccupancySummary> {
@@ -39,9 +51,11 @@ export function fetchOccupancySummary(token: string): Promise<OccupancySummary> 
 
 export function createMovement(
   input: CreateMovementInput,
+  token: string,
 ): Promise<{ movement: Movement; position: Position }> {
   return request('/movements', {
     method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
     body: JSON.stringify(input),
   });
 }
