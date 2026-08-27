@@ -6,6 +6,7 @@ import { ShelvesModule } from './shelves/shelves.module';
 import { PositionsModule } from './positions/positions.module';
 import { MovementsModule } from './movements/movements.module';
 import { AuthModule } from './auth/auth.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthModule } from './auth/auth.module';
     PositionsModule,
     MovementsModule,
     AuthModule,
+    ProductsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import type { MovementType, Position } from '../../types/position';
+import { ProductAutocomplete } from '../ProductAutocomplete/ProductAutocomplete';
 import './CheckinForm.css';
 
 export interface CheckinFormSubmitInput {
@@ -86,12 +87,7 @@ export function CheckinForm({
 
             <label>
               Produto
-              <input
-                type="text"
-                value={product}
-                onChange={(e) => setProduct(e.target.value)}
-                required
-              />
+              <ProductAutocomplete value={product} onChange={setProduct} required />
             </label>
 
             <label>

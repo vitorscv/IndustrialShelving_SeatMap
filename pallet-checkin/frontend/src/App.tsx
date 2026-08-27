@@ -6,6 +6,7 @@ import { DashboardLayout } from './pages/dashboard/DashboardLayout';
 import { OverviewPage } from './pages/dashboard/OverviewPage';
 import { EstantesPage } from './pages/dashboard/EstantesPage';
 import { MovementsPage } from './pages/dashboard/MovementsPage';
+import { ProdutosPage } from './pages/dashboard/ProdutosPage';
 import { ComingSoonPage } from './pages/dashboard/ComingSoonPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
@@ -30,7 +31,7 @@ function App() {
           <Route index element={<OverviewPage />} />
           <Route path="estantes" element={<EstantesPage />} />
           <Route path="movimentacoes" element={<MovementsPage />} />
-          <Route path="produtos" element={<ComingSoonPage title="Produtos" />} />
+          <Route path="produtos" element={<ProdutosPage />} />
           <Route path="relatorios" element={<ComingSoonPage title="Relatórios" />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

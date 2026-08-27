@@ -72,3 +72,15 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+// A flat catalog used only for check-in autocomplete suggestions — the
+// Produto field on a Movement/Position stays free text regardless (see
+// ProductAutocomplete on the frontend), this is never a foreign key or a
+// validation constraint on it. No @unique on `name`: duplicates are
+// prevented at the import service layer via a case-insensitive check,
+// since Postgres's plain unique index is case-sensitive.
+model Product {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+}

@@ -2,21 +2,28 @@ import type {
   CreateMovementInput,
   CreateShelfInput,
   CreateShelfResult,
+  ImportProductsResult,
   ListMovementsParams,
   Movement,
   OccupancySummary,
   PaginatedMovements,
   Position,
+  Product,
   Shelf,
 } from '../types/position';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  // FormData bodies (the spreadsheet upload) must NOT get an explicit
+  // Content-Type — the browser sets its own multipart boundary, which it
+  // can only do if this header is left for it to fill in.
+  const isFormData = options?.body instanceof FormData;
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...options?.headers,
     },
   });
@@ -75,6 +82,22 @@ export function createMovement(
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
     body: JSON.stringify(input),
+  });
+}
+
+export function fetchProducts(token: string): Promise<Product[]> {
+  return request<Product[]>('/products', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function importProducts(file: File, token: string): Promise<ImportProductsResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return request<ImportProductsResult>('/products/import', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
   });
 }
 

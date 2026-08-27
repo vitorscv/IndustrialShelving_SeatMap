@@ -1,0 +1,114 @@
+.produtos-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.produtos-page__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.produtos-page__import-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.65rem 1.1rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: var(--color-brand-accent);
+  color: var(--color-on-accent);
+}
+
+.produtos-page__import-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.produtos-page__file-input {
+  display: none;
+}
+
+.produtos-page__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 2rem;
+}
+
+.produtos-page__import-summary {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background-color: color-mix(in srgb, var(--color-success) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-success) 45%, transparent);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.produtos-page__muted {
+  color: var(--color-text-secondary);
+}
+
+.produtos-page__error {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.produtos-page__table-wrap {
+  overflow-x: auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.produtos-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.produtos-page__table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.produtos-page__table td {
+  padding: 0.7rem 1rem;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.produtos-page__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.produtos-page__table tbody tr:hover td {
+  background-color: var(--color-bg);
+}
+
+.produtos-page__empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 2rem !important;
+}

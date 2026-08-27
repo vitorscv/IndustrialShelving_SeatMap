@@ -100,3 +100,14 @@ export interface ListMovementsParams {
   from?: string;
   to?: string;
 }
+
+export interface Product {
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface ImportProductsResult {
+  created: number;
+  skipped: number;
+}
