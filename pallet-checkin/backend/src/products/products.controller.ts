@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   Post,
@@ -11,6 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ProductsService } from './products.service';
 import { parseProductNames } from './parse-spreadsheet';
+import { CreateProductDto } from './dto/create-product.dto';
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB — enough for a large product catalog, small enough to avoid abuse.
 
@@ -22,6 +24,11 @@ export class ProductsController {
   @Get()
   findAll() {
     return this.productsService.findAll();
+  }
+
+  @Post()
+  create(@Body() dto: CreateProductDto) {
+    return this.productsService.create(dto.name);
   }
 
   @Post('import')

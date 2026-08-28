@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface ImportProductsResult {
@@ -12,6 +12,21 @@ export class ProductsService {
 
   findAll() {
     return this.prisma.product.findMany({ orderBy: { name: 'asc' } });
+  }
+
+  // Same case-insensitive duplicate rule as the spreadsheet import, just
+  // checked against the database directly (Postgres's native
+  // mode: 'insensitive') instead of loading everything into memory, since
+  // this is a single lookup rather than a whole-file batch.
+  async create(name: string) {
+    const trimmed = name.trim();
+    const existing = await this.prisma.product.findFirst({
+      where: { name: { equals: trimmed, mode: 'insensitive' } },
+    });
+    if (existing) {
+      throw new ConflictException('A product with this name already exists');
+    }
+    return this.prisma.product.create({ data: { name: trimmed } });
   }
 
   // Duplicates are checked case-insensitively against BOTH what's already

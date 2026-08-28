@@ -1,0 +1,74 @@
+.date-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  /* A flex item's default min-width is `auto`, which means "never shrink
+     below your content's own intrinsic minimum" — for a date input, that
+     intrinsic minimum comfortably fits its dd/mm/aaaa placeholder, so the
+     item refuses to shrink to the flex row's actual available space and
+     overflows the card instead. min-width: 0 lets it obey width: 100% on
+     the input inside it (see .date-input__native) instead. */
+  min-width: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.date-input__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.date-input__native {
+  width: 100%;
+  padding: 0.5rem 2.25rem 0.5rem 0.65rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color-scheme: dark;
+}
+
+.date-input__native:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
+}
+
+/* The native calendar-picker-indicator can't be recolored with CSS
+   filters precisely enough to match the theme, so it's made invisible
+   but kept in place (and clickable — the whole date-input__icon area
+   sits exactly on top of it) while a themed Lucide icon is drawn
+   underneath for the actual visual. Firefox has no equivalent
+   pseudo-element to hide, so it keeps its own native icon there instead
+   — a graceful, not broken, fallback. */
+.date-input__native::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 2.25rem;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.date-input__icon {
+  position: absolute;
+  right: 0.7rem;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+.date-input:focus-within .date-input__icon {
+  color: var(--color-brand-accent);
+}

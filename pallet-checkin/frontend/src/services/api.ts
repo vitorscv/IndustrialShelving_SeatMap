@@ -5,6 +5,7 @@ import type {
   ImportProductsResult,
   ListMovementsParams,
   Movement,
+  MovementType,
   OccupancySummary,
   PaginatedMovements,
   Position,
@@ -91,6 +92,14 @@ export function fetchProducts(token: string): Promise<Product[]> {
   });
 }
 
+export function createProduct(name: string, token: string): Promise<Product> {
+  return request<Product>('/products', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ name }),
+  });
+}
+
 export function importProducts(file: File, token: string): Promise<ImportProductsResult> {
   const formData = new FormData();
   formData.append('file', file);
@@ -99,6 +108,109 @@ export function importProducts(file: File, token: string): Promise<ImportProduct
     headers: { Authorization: `Bearer ${token}` },
     body: formData,
   });
+}
+
+// Report endpoints return a raw .xlsx binary, not JSON — this can't go
+// through request() (which always calls response.json()), so it has its
+// own fetch + blob handling, reusing the same 401-redirect behavior.
+async function downloadFile(path: string, token: string, fallbackFilename: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (response.status === 401) {
+    window.location.href = '/login';
+    throw new Error('Sessão expirada. Faça login novamente.');
+  }
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.message ?? `Request to ${path} failed with status ${response.status}`);
+  }
+
+  const blob = await response.blob();
+  const disposition = response.headers.get('Content-Disposition');
+  const filename = disposition?.match(/filename="(.+?)"/)?.[1] ?? fallbackFilename;
+
+  // Standard "fake link click" download trigger — the blob URL is revoked
+  // right after so it doesn't linger in memory.
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export function downloadMovementsReport(
+  type: MovementType,
+  from: string | undefined,
+  to: string | undefined,
+  token: string,
+): Promise<void> {
+  const query = new URLSearchParams({ type });
+  if (from) query.set('from', from);
+  if (to) query.set('to', to);
+  const fallbackFilename = `relatorio-${type === 'CHECK_IN' ? 'entradas' : 'saidas'}.xlsx`;
+  return downloadFile(`/reports/movements?${query.toString()}`, token, fallbackFilename);
+}
+
+export function downloadOccupancySnapshot(token: string): Promise<void> {
+  return downloadFile('/reports/occupancy-snapshot', token, 'ocupacao-atual.xlsx');
+}
+
+function buildDateRangeQuery(from: string | undefined, to: string | undefined): string {
+  const query = new URLSearchParams();
+  if (from) query.set('from', from);
+  if (to) query.set('to', to);
+  const queryString = query.toString();
+  return queryString ? `?${queryString}` : '';
+}
+
+export function downloadTopProductsReport(
+  from: string | undefined,
+  to: string | undefined,
+  token: string,
+): Promise<void> {
+  return downloadFile(
+    `/reports/top-products${buildDateRangeQuery(from, to)}`,
+    token,
+    'relatorio-produtos-mais-movimentados.xlsx',
+  );
+}
+
+export function downloadBySalespersonReport(
+  from: string | undefined,
+  to: string | undefined,
+  token: string,
+): Promise<void> {
+  return downloadFile(
+    `/reports/by-salesperson${buildDateRangeQuery(from, to)}`,
+    token,
+    'relatorio-por-vendedor.xlsx',
+  );
+}
+
+export function downloadActivityPeaksReport(
+  from: string | undefined,
+  to: string | undefined,
+  token: string,
+): Promise<void> {
+  return downloadFile(
+    `/reports/activity-peaks${buildDateRangeQuery(from, to)}`,
+    token,
+    'relatorio-picos-atividade.xlsx',
+  );
+}
+
+export function downloadStalePositionsReport(minDays: number, token: string): Promise<void> {
+  return downloadFile(
+    `/reports/stale-positions?minDays=${minDays}`,
+    token,
+    'relatorio-posicoes-paradas.xlsx',
+  );
 }
 
 export function fetchMovements(

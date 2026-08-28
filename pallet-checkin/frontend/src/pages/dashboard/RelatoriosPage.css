@@ -1,0 +1,29 @@
+.relatorios-page__header {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.relatorios-page__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.relatorios-page__content {
+  padding: 2rem;
+}
+
+.relatorios-page__grid {
+  display: grid;
+  /* auto-fit (not auto-fill) collapses empty tracks — a trailing row with
+     fewer cards stretches to fill the width evenly instead of leaving a
+     lopsided gap where phantom columns would've been. */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: stretch;
+  gap: 1.25rem;
+}

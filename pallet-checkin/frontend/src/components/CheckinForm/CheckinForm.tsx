@@ -10,6 +10,10 @@ export interface CheckinFormSubmitInput {
   quantity?: number;
   orderNumber?: string;
   product?: string;
+  // Always present, but only ever user-edited on CHECK_IN — on CHECK_OUT
+  // this just echoes position.salesInfo back (read-only in the UI), and
+  // the backend ignores it anyway, reading the position's own stored
+  // value instead (same pattern as quantity/orderNumber/product above).
   salesInfo: string;
 }
 
@@ -49,7 +53,7 @@ export function CheckinForm({
     setError(null);
     const input: CheckinFormSubmitInput = isCheckIn
       ? { quantity: Number(quantity), orderNumber, product, salesInfo }
-      : { salesInfo };
+      : { salesInfo: position.salesInfo ?? '' };
     try {
       await onSubmit(input);
       setOrderNumber('');
@@ -117,15 +121,21 @@ export function CheckinForm({
         )}
       </fieldset>
 
-      <label>
-        Vendedor/Cidade
-        <input
-          type="text"
-          value={salesInfo}
-          onChange={(e) => onSalesInfoChange(e.target.value)}
-          required
-        />
-      </label>
+      {isCheckIn ? (
+        <label>
+          Vendedor/Cidade
+          <input
+            type="text"
+            value={salesInfo}
+            onChange={(e) => onSalesInfoChange(e.target.value)}
+            required
+          />
+        </label>
+      ) : (
+        <p className="checkin-form__info">
+          Vendedor/Cidade: <strong>{position.salesInfo}</strong>
+        </p>
+      )}
 
       <button
         type="submit"

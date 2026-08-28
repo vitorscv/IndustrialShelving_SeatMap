@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
-import { Upload } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
 import { useProducts } from '../../hooks/useProducts';
 import { importProducts } from '../../services/api';
 import { useAuth } from '../../services/auth';
+import { AddProductModal } from '../../components/AddProductModal/AddProductModal';
 import './ProdutosPage.css';
 
 export function ProdutosPage() {
@@ -12,6 +13,7 @@ export function ProdutosPage() {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<{ created: number; skipped: number } | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
   function handleImportClick() {
     fileInputRef.current?.click();
@@ -42,22 +44,32 @@ export function ProdutosPage() {
     <div className="produtos-page">
       <div className="produtos-page__header">
         <h1 className="produtos-page__title">Produtos</h1>
-        <button
-          type="button"
-          className="produtos-page__import-button"
-          onClick={handleImportClick}
-          disabled={importing}
-        >
-          <Upload size={16} aria-hidden="true" />
-          {importing ? 'Importando...' : 'Importar planilha'}
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".xlsx,.csv"
-          className="produtos-page__file-input"
-          onChange={handleFileSelected}
-        />
+        <div className="produtos-page__header-actions">
+          <button
+            type="button"
+            className="produtos-page__add-button"
+            onClick={() => setAddModalOpen(true)}
+          >
+            <Plus size={16} aria-hidden="true" />
+            Adicionar produto
+          </button>
+          <button
+            type="button"
+            className="produtos-page__import-button"
+            onClick={handleImportClick}
+            disabled={importing}
+          >
+            <Upload size={16} aria-hidden="true" />
+            {importing ? 'Importando...' : 'Importar planilha'}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.csv"
+            className="produtos-page__file-input"
+            onChange={handleFileSelected}
+          />
+        </div>
       </div>
 
       <div className="produtos-page__content">
@@ -84,7 +96,8 @@ export function ProdutosPage() {
                 {products.length === 0 && (
                   <tr>
                     <td className="produtos-page__empty">
-                      Nenhum produto cadastrado ainda — importe uma planilha para começar.
+                      Nenhum produto cadastrado ainda — importe uma planilha ou adicione manualmente para
+                      começar.
                     </td>
                   </tr>
                 )}
@@ -98,6 +111,8 @@ export function ProdutosPage() {
           </div>
         )}
       </div>
+
+      <AddProductModal open={addModalOpen} onClose={() => setAddModalOpen(false)} onSuccess={refresh} />
     </div>
   );
 }

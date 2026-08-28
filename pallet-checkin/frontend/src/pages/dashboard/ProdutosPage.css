@@ -16,6 +16,34 @@
   color: var(--color-text-primary);
 }
 
+.produtos-page__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.produtos-page__add-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.65rem 1.1rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.produtos-page__add-button:hover {
+  border-color: var(--color-brand-accent);
+}
+
 .produtos-page__import-button {
   display: flex;
   align-items: center;

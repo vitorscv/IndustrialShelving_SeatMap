@@ -7,7 +7,7 @@ import { OverviewPage } from './pages/dashboard/OverviewPage';
 import { EstantesPage } from './pages/dashboard/EstantesPage';
 import { MovementsPage } from './pages/dashboard/MovementsPage';
 import { ProdutosPage } from './pages/dashboard/ProdutosPage';
-import { ComingSoonPage } from './pages/dashboard/ComingSoonPage';
+import { RelatoriosPage } from './pages/dashboard/RelatoriosPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
 function App() {
@@ -32,7 +32,7 @@ function App() {
           <Route path="estantes" element={<EstantesPage />} />
           <Route path="movimentacoes" element={<MovementsPage />} />
           <Route path="produtos" element={<ProdutosPage />} />
-          <Route path="relatorios" element={<ComingSoonPage title="Relatórios" />} />
+          <Route path="relatorios" element={<RelatoriosPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

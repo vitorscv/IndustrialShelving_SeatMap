@@ -1,0 +1,114 @@
+.report-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+  padding: 1.5rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-sans);
+  /* The DE/ATÉ pair needs to react to THIS card's own width, not the
+     viewport's — the grid can put a card anywhere from ~280px (mobile,
+     single column) up to much wider (desktop, 3 columns), independent of
+     window size. A container query answers "is this card narrow", which
+     a viewport media query can't. */
+  container-type: inline-size;
+}
+
+.report-card__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.report-card__description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.report-card__date-range {
+  display: flex;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/* Below this, DE/ATÉ side-by-side would each get too little width to stay
+   readable even after the min-width: 0 fix — stack them instead of
+   forcing a horizontal squeeze. Threshold covers the grid's narrowest
+   column (minmax(280px, ...)) with room to spare. */
+@container (max-width: 320px) {
+  .report-card__date-range {
+    flex-direction: column;
+  }
+}
+
+.report-card__number-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.report-card__number-field input {
+  padding: 0.5rem 0.65rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+/* Ghost/outline style — matching the "Adicionar produto" secondary
+   button on the Produtos page. Seven cards each with a solid, equally
+   bright fill would all compete for attention at once; the icon stays
+   accent-colored so the action still reads as clearly clickable. */
+.report-card__download {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding: 0.65rem 1.1rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.report-card__download svg {
+  color: var(--color-brand-accent);
+}
+
+.report-card__download:hover:not(:disabled) {
+  border-color: var(--color-brand-accent);
+}
+
+.report-card__download:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.report-card__error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.8rem;
+}
