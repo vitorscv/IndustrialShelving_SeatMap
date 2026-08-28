@@ -10,6 +10,8 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { ProductsService } from './products.service';
 import { parseProductNames } from './parse-spreadsheet';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -21,16 +23,22 @@ const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB — enough for a large produ
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  // No @Roles() — read-only, needed by the check-in Produto autocomplete
+  // for both roles.
   @Get()
   findAll() {
     return this.productsService.findAll();
   }
 
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
   @Post()
   create(@Body() dto: CreateProductDto) {
     return this.productsService.create(dto.name);
   }
 
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
   @Post('import')
   @UseInterceptors(
     FileInterceptor('file', {

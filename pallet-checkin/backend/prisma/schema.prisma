@@ -22,6 +22,11 @@ enum MovementType {
   CHECK_OUT
 }
 
+enum Role {
+  ADMIN
+  OPERATOR
+}
+
 model Shelf {
   id        String     @id @default(uuid())
   title     String
@@ -61,14 +66,17 @@ model Movement {
   timestamp    DateTime     @default(now())
 }
 
-// Flat single-tier users — no role/permission system yet (decided: roles
-// come later if needed). passwordHash is NEVER selected by default in any
-// query that returns a User to an API response — every read explicitly
-// lists the safe columns via Prisma `select`.
+// Two flat roles (ADMIN / OPERATOR) — no finer-grained permission system.
+// New users default to OPERATOR (the lower-privilege role) so creating a
+// user never accidentally grants admin access; ADMIN must be chosen
+// explicitly. passwordHash is NEVER selected by default in any query that
+// returns a User to an API response — every read explicitly lists the
+// safe columns via Prisma `select`.
 model User {
   id           String   @id @default(uuid())
   username     String   @unique
   passwordHash String
+  role         Role     @default(OPERATOR)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

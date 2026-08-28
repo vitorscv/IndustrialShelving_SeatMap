@@ -13,6 +13,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "ts-node prisma/seed.ts",
     "prisma:seed-admin": "ts-node prisma/seed-admin.ts",
+    "password:change": "ts-node prisma/change-password.ts",
     "lint": "eslint \"{src,prisma}/**/*.ts\"",
     "test": "jest"
   },

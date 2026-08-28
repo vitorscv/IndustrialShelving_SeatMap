@@ -10,15 +10,24 @@ import {
   LogOut,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../../services/auth';
+import { useAuth, useRole } from '../../services/auth';
 import './Sidebar.css';
 
+// adminOnly items are hidden entirely for OPERATOR — not just visually
+// de-emphasized — since an operator's one job (check-in/check-out on the
+// seat map) only ever needs Visão Geral.
 const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Visão Geral', icon: LayoutGrid, end: true },
-  { to: '/dashboard/estantes', label: 'Estantes', icon: Layers, end: false },
-  { to: '/dashboard/movimentacoes', label: 'Movimentações', icon: ArrowLeftRight, end: false },
-  { to: '/dashboard/produtos', label: 'Produtos', icon: Box, end: false },
-  { to: '/dashboard/relatorios', label: 'Relatórios', icon: FileText, end: false },
+  { to: '/dashboard', label: 'Visão Geral', icon: LayoutGrid, end: true, adminOnly: false },
+  { to: '/dashboard/estantes', label: 'Estantes', icon: Layers, end: false, adminOnly: true },
+  {
+    to: '/dashboard/movimentacoes',
+    label: 'Movimentações',
+    icon: ArrowLeftRight,
+    end: false,
+    adminOnly: true,
+  },
+  { to: '/dashboard/produtos', label: 'Produtos', icon: Box, end: false, adminOnly: true },
+  { to: '/dashboard/relatorios', label: 'Relatórios', icon: FileText, end: false, adminOnly: true },
 ];
 
 // UI preference only (not sensitive) — fine to persist directly in
@@ -35,7 +44,9 @@ function readStoredCollapsed(): boolean {
 
 export function Sidebar() {
   const { setToken } = useAuth();
+  const role = useRole();
   const [collapsed, setCollapsed] = useState(readStoredCollapsed);
+  const visibleNavItems = NAV_ITEMS.filter((item) => !item.adminOnly || role === 'ADMIN');
 
   useEffect(() => {
     try {
@@ -70,7 +81,7 @@ export function Sidebar() {
       </div>
 
       <nav className="sidebar__nav">
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+        {visibleNavItems.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}

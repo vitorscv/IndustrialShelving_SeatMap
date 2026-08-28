@@ -22,6 +22,7 @@ const DUMMY_HASH_FOR_TIMING_SAFETY = '$2b$12$gleIpL5SoLhjGAsqeSyUQ.Ik.6YI1.Ub9JE
 const SAFE_USER_SELECT = {
   id: true,
   username: true,
+  role: true,
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.UserSelect;
@@ -36,7 +37,7 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { username: dto.username },
-      select: { id: true, username: true, passwordHash: true },
+      select: { id: true, username: true, passwordHash: true, role: true },
     });
 
     const passwordMatches = await bcrypt.compare(
@@ -52,8 +53,10 @@ export class AuthService {
     }
 
     // Minimal claims only — the JWT payload is base64-encoded, not
-    // encrypted, so nothing sensitive belongs in it.
-    const accessToken = this.jwtService.sign({ sub: user.id, username: user.username });
+    // encrypted, so nothing sensitive belongs in it. `role` is included so
+    // RolesGuard can check it straight off the token, with no extra DB
+    // query on every request.
+    const accessToken = this.jwtService.sign({ sub: user.id, username: user.username, role: user.role });
     return { accessToken };
   }
 
@@ -71,8 +74,11 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, BCRYPT_COST_FACTOR);
 
+    // dto.role omitted falls through to the schema's own @default(OPERATOR)
+    // — creating a user never silently grants admin access, ADMIN has to
+    // be chosen explicitly by whoever is creating the account.
     return this.prisma.user.create({
-      data: { username: dto.username, passwordHash },
+      data: { username: dto.username, passwordHash, role: dto.role },
       select: SAFE_USER_SELECT,
     });
   }

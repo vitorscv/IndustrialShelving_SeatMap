@@ -9,6 +9,7 @@ import { MovementsPage } from './pages/dashboard/MovementsPage';
 import { ProdutosPage } from './pages/dashboard/ProdutosPage';
 import { RelatoriosPage } from './pages/dashboard/RelatoriosPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
+import { AdminRoute } from './routes/AdminRoute';
 
 function App() {
   const [token, setToken] = useState<string | null>(null);
@@ -29,10 +30,38 @@ function App() {
           }
         >
           <Route index element={<OverviewPage />} />
-          <Route path="estantes" element={<EstantesPage />} />
-          <Route path="movimentacoes" element={<MovementsPage />} />
-          <Route path="produtos" element={<ProdutosPage />} />
-          <Route path="relatorios" element={<RelatoriosPage />} />
+          <Route
+            path="estantes"
+            element={
+              <AdminRoute>
+                <EstantesPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="movimentacoes"
+            element={
+              <AdminRoute>
+                <MovementsPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="produtos"
+            element={
+              <AdminRoute>
+                <ProdutosPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="relatorios"
+            element={
+              <AdminRoute>
+                <RelatoriosPage />
+              </AdminRoute>
+            }
+          />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

@@ -1,6 +1,8 @@
 import { Controller, Get, Query, Res, StreamableFile, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { ReportsService } from './reports.service';
 import { ExportMovementsQueryDto } from './dto/export-movements-query.dto';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
@@ -8,7 +10,10 @@ import { StalePositionsQueryDto } from './dto/stale-positions-query.dto';
 
 const XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-@UseGuards(JwtAuthGuard)
+// Every report export is ADMIN-only — applied once here at the class
+// level rather than repeating @Roles('ADMIN') on all six routes below.
+@Roles('ADMIN')
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('reports')
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}

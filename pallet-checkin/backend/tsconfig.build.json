@@ -1,4 +1,12 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "prisma/seed.ts", "prisma/seed-admin.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "**/*spec.ts",
+    "prisma/seed.ts",
+    "prisma/seed-admin.ts",
+    "prisma/change-password.ts"
+  ]
 }

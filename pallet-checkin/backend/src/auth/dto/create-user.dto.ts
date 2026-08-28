@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { Role } from '@prisma/client';
 
 export class CreateUserDto {
   @IsString()
@@ -15,4 +16,10 @@ export class CreateUserDto {
   @MinLength(8, { message: 'password must be at least 8 characters long' })
   @MaxLength(200)
   password: string;
+
+  // Omitted → falls through to the schema's own @default(OPERATOR) in
+  // AuthService.createUser — never silently ADMIN.
+  @IsOptional()
+  @IsEnum(Role)
+  role?: Role;
 }

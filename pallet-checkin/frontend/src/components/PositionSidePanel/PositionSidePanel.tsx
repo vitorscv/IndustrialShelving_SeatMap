@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeftRight, Eye, History, Package, X } from 'lucide-react';
 import type { Position } from '../../types/position';
 import { fetchMovements } from '../../services/api';
-import { useAuth } from '../../services/auth';
+import { useAuth, useRole } from '../../services/auth';
 import { formatShelfLabel, padNumber } from '../../utils/format';
 import './PositionSidePanel.css';
 
@@ -31,6 +31,8 @@ const STATUS_LABELS: Record<Position['status'], string> = {
 export function PositionSidePanel({ selection, onClose, onMovimentar }: PositionSidePanelProps) {
   const navigate = useNavigate();
   const { token } = useAuth();
+  const role = useRole();
+  const isAdmin = role === 'ADMIN';
   // Kept mounted (with its own last-known content) across the null
   // transition so the exit animation has something to fade/slide out
   // instead of the panel just vanishing the instant the selection clears.
@@ -72,9 +74,12 @@ export function PositionSidePanel({ selection, onClose, onMovimentar }: Position
 
   // Real data (not fabricated): the position's most recent movement, fetched
   // from Phase 1's paginated endpoint scoped to just this one position.
+  // GET /movements is ADMIN-only (RolesGuard) — an OPERATOR would always
+  // get a 403 here, so this is skipped entirely for that role rather than
+  // firing a doomed request and leaving "…" stuck forever.
   useEffect(() => {
     const positionId = selection?.position.id;
-    if (!positionId || !token) {
+    if (!positionId || !token || !isAdmin) {
       setLastMovementText(null);
       return;
     }
@@ -91,7 +96,7 @@ export function PositionSidePanel({ selection, onClose, onMovimentar }: Position
     return () => {
       cancelled = true;
     };
-  }, [selection?.position.id, token]);
+  }, [selection?.position.id, token, isAdmin]);
 
   if (!content) return null;
 
@@ -153,10 +158,12 @@ export function PositionSidePanel({ selection, onClose, onMovimentar }: Position
                   : '—'}
               </dd>
             </div>
-            <div className="position-side-panel__row">
-              <dt>Última movimentação</dt>
-              <dd>{lastMovementText ?? '…'}</dd>
-            </div>
+            {isAdmin && (
+              <div className="position-side-panel__row">
+                <dt>Última movimentação</dt>
+                <dd>{lastMovementText ?? '…'}</dd>
+              </div>
+            )}
           </dl>
         )}
 
@@ -172,14 +179,20 @@ export function PositionSidePanel({ selection, onClose, onMovimentar }: Position
       <div className="position-side-panel__section">
         <span className="position-side-panel__section-title">Ações rápidas</span>
         <div className="position-side-panel__actions">
-          <button
-            type="button"
-            className="position-side-panel__action"
-            onClick={() => navigate('/dashboard/produtos')}
-          >
-            <Eye size={16} aria-hidden="true" />
-            Ver produto
-          </button>
+          {/* "Ver produto" and "Histórico da posição" navigate to
+              AdminRoute-protected pages — hidden entirely for OPERATOR
+              rather than left clickable and silently bouncing back,
+              same "hide, don't dead-end" rule applied to the sidebar nav. */}
+          {isAdmin && (
+            <button
+              type="button"
+              className="position-side-panel__action"
+              onClick={() => navigate('/dashboard/produtos')}
+            >
+              <Eye size={16} aria-hidden="true" />
+              Ver produto
+            </button>
+          )}
           <button
             type="button"
             className="position-side-panel__action"
@@ -188,14 +201,16 @@ export function PositionSidePanel({ selection, onClose, onMovimentar }: Position
             <ArrowLeftRight size={16} aria-hidden="true" />
             Movimentar
           </button>
-          <button
-            type="button"
-            className="position-side-panel__action"
-            onClick={() => navigate(`/dashboard/movimentacoes?positionId=${position.id}`)}
-          >
-            <History size={16} aria-hidden="true" />
-            Histórico da posição
-          </button>
+          {isAdmin && (
+            <button
+              type="button"
+              className="position-side-panel__action"
+              onClick={() => navigate(`/dashboard/movimentacoes?positionId=${position.id}`)}
+            >
+              <History size={16} aria-hidden="true" />
+              Histórico da posição
+            </button>
+          )}
         </div>
       </div>
     </aside>

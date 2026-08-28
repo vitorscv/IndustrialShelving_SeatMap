@@ -39,6 +39,13 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     throw new Error('Sessão expirada. Faça login novamente.');
   }
 
+  if (response.status === 403) {
+    // Distinct from 401: the token is valid, but this role isn't allowed
+    // to do this — no redirect, just a clear message the caller can show
+    // inline (the session itself is still fine).
+    throw new Error('Você não tem permissão para essa ação.');
+  }
+
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new Error(body?.message ?? `Request to ${path} failed with status ${response.status}`);
@@ -121,6 +128,10 @@ async function downloadFile(path: string, token: string, fallbackFilename: strin
   if (response.status === 401) {
     window.location.href = '/login';
     throw new Error('Sessão expirada. Faça login novamente.');
+  }
+
+  if (response.status === 403) {
+    throw new Error('Você não tem permissão para essa ação.');
   }
 
   if (!response.ok) {
