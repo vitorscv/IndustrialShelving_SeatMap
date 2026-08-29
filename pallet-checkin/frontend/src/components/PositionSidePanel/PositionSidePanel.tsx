@@ -104,10 +104,20 @@ export function PositionSidePanel({ selection, onClose, onMovimentar }: Position
   const statusKey = position.status.toLowerCase();
 
   return (
-    <aside
-      className={`position-side-panel${visible ? ' position-side-panel--visible' : ''}`}
-      aria-label={`Posição selecionada: ${shelfTitle} - ${position.level}${position.number}`}
-    >
+    <>
+      {/* Only visible at mobile/tablet widths (see PositionSidePanel.css) —
+          desktop's side rail has no backdrop. Dimming only, pointer-events
+          stays none so taps still reach the seat map underneath — that's
+          what lets tapping the same/a different cell close or switch the
+          sheet; closing by tapping the backdrop itself isn't supported. */}
+      <div
+        className={`position-side-panel__backdrop${visible ? ' position-side-panel__backdrop--visible' : ''}`}
+        aria-hidden="true"
+      />
+      <aside
+        className={`position-side-panel${visible ? ' position-side-panel--visible' : ''}`}
+        aria-label={`Posição selecionada: ${shelfTitle} - ${position.level}${position.number}`}
+      >
       <div className="position-side-panel__header">
         <div className={`position-side-panel__icon-box position-side-panel__icon-box--${statusKey}`}>
           <Package size={20} aria-hidden="true" />
@@ -213,6 +223,7 @@ export function PositionSidePanel({ selection, onClose, onMovimentar }: Position
           )}
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

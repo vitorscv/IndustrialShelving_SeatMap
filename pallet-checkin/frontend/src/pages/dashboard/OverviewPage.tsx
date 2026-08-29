@@ -113,6 +113,13 @@ export function OverviewPage() {
     ? shelves.filter((shelf) => shelf.id === shelfFilter)
     : shelves;
 
+  // Tapping the already-selected cell again closes the panel (toggle);
+  // tapping a different cell just switches the panel to show it, with no
+  // need to close first.
+  function handleSelectPosition(position: Position) {
+    setSelectedPositionId((current) => (current === position.id ? null : position.id));
+  }
+
   return (
     <div className="overview-page">
       <div className="overview-page__header">
@@ -180,7 +187,7 @@ export function OverviewPage() {
             <SeatMap
               shelves={visibleShelves}
               selectedPositionId={selectedPositionId}
-              onSelectPosition={(position) => setSelectedPositionId(position.id)}
+              onSelectPosition={handleSelectPosition}
               searchQuery={searchQuery}
             />
           )}
@@ -189,7 +196,7 @@ export function OverviewPage() {
               shelves={visibleShelves}
               searchQuery={searchQuery}
               selectedPositionId={selectedPositionId}
-              onSelectPosition={(position) => setSelectedPositionId(position.id)}
+              onSelectPosition={handleSelectPosition}
             />
           )}
 
