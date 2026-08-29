@@ -22,7 +22,10 @@ async function bootstrap() {
   app.use(helmet());
   app.enableCors({ origin: getAllowedOrigins() });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+  // Railway assigns PORT dynamically at runtime — never hardcode it. The
+  // fallback only matters for local dev, where it matches this project's
+  // documented default (.env.example, frontend's VITE_API_URL).
+  const port = process.env.PORT ? Number(process.env.PORT) : 3001;
   await app.listen(port);
   console.log(`Pallet check-in backend running on http://localhost:${port}`);
 }

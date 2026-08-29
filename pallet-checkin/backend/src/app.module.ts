@@ -8,6 +8,7 @@ import { MovementsModule } from './movements/movements.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { ReportsModule } from './reports/reports.module';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ReportsModule } from './reports/reports.module';
     ProductsModule,
     ReportsModule,
   ],
+  controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
