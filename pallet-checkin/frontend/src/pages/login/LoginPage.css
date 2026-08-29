@@ -90,3 +90,16 @@
   color: var(--color-danger);
   font-size: 0.85rem;
 }
+
+/* The card's fixed 22rem width has no fallback below that — it would
+   overflow (or sit flush against the edges) on a phone-width viewport. */
+@media (max-width: 640px) {
+  .login-page {
+    padding: 1.25rem;
+  }
+
+  .login-page__form {
+    width: 100%;
+    max-width: 22rem;
+  }
+}

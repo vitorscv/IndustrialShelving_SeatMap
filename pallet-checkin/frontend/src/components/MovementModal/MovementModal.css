@@ -59,3 +59,22 @@
   color: var(--color-text-primary);
   border-color: var(--color-brand-accent);
 }
+
+/* Neither the backdrop nor the modal had any max-height/overflow handling
+   before — fine on desktop (plenty of vertical room), but on tablet/phone
+   the on-screen keyboard can shrink the visual viewport enough that the
+   confirm button ends up unreachable below the fold with no way to scroll
+   to it. Switching to flex-start (instead of center) + scroll on the
+   backdrop itself lets the whole modal scroll into view like a normal
+   page would, rather than trying to squeeze scrolling into the card. */
+@media (max-width: 1024px) {
+  .movement-modal__backdrop {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+
+  .movement-modal {
+    margin: 1rem auto;
+  }
+}

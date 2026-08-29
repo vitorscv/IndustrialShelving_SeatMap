@@ -10,3 +10,12 @@
   flex: 1;
   min-width: 0;
 }
+
+/* Clears the fixed hamburger button (Sidebar.css) so it never overlaps
+   whichever page's own header happens to be active — one shared offset
+   here instead of padding every individual page header. */
+@media (max-width: 640px) {
+  .dashboard-layout__main {
+    padding-top: 3.5rem;
+  }
+}

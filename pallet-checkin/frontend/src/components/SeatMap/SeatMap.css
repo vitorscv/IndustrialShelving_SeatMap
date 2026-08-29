@@ -15,6 +15,22 @@
   transition: opacity 300ms ease, transform 200ms ease, box-shadow 200ms ease;
 }
 
+/* Flex items (.seat-map is display:flex, column direction) default to
+   min-width: auto on the cross axis, which protects them from shrinking
+   below their content's min-content size — normally invisible, but once
+   .seat-map__level's own fix (above) lets that min-content correctly
+   reflect the full unscrolled row width, this card would rather grow to
+   1800+px than stretch to the flex container's actual (narrower) width,
+   pushing the whole PAGE wider instead of leaving the scrolling to
+   .seat-map__grid several levels down. Resetting it to 0 here is what
+   actually lets that inner scroll container be smaller than its content,
+   which is the entire point of it having overflow-x: auto. */
+@media (max-width: 1024px) {
+  .seat-map__shelf {
+    min-width: 0;
+  }
+}
+
 /* Toggled shortly after mount (see SeatMap.tsx) — a plain transition here
    (instead of a @keyframes animation) so the hover lift below can still
    override `transform` afterwards; a filled animation would otherwise keep
@@ -177,6 +193,25 @@
   align-items: center;
   gap: 0.75rem;
   margin-top: 0.65rem;
+}
+
+/* At narrow viewports, .seat-map__grid's own auto width is squeezed far
+   below its content's real size (that's the intended scroll-container
+   behavior) — but as a plain block child with width:auto, .seat-map__level
+   inherits that same squeeze, and with no explicit sizing hint of its own,
+   the flex algorithm for its two children (label + row) can degenerate to
+   ~0 usable space, rendering neither at all instead of correctly
+   overflowing into the scrollable parent. Sizing this to its own content
+   (`max-content`) breaks that circular auto-vs-auto ambiguity: the row
+   becomes reliably as wide as it needs, and .seat-map__grid's existing
+   overflow-x: auto (unchanged) is what actually makes it scrollable. Only
+   needed once the viewport is narrow enough to trigger the squeeze at
+   all — desktop's available width already exceeds the content, so this is
+   a no-op there. */
+@media (max-width: 1024px) {
+  .seat-map__level {
+    width: max-content;
+  }
 }
 
 /* Sticky to the grid's own scrollport, not the row — stays pinned to the

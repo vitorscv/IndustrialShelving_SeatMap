@@ -211,3 +211,15 @@
 .position-side-panel__action:hover {
   border-color: var(--color-brand-accent);
 }
+
+/* Matches OverviewPage.css's ≤1024px switch of .overview-page__body to a
+   column — once stacked below the grid instead of beside it, the fixed
+   20rem width and sticky positioning (meant for a side rail) no longer
+   apply; it should just be a full-width block in normal flow. */
+@media (max-width: 1024px) {
+  .position-side-panel {
+    width: 100%;
+    position: static;
+    align-self: stretch;
+  }
+}

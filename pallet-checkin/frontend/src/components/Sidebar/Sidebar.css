@@ -192,3 +192,101 @@
   opacity: 0.7;
   white-space: nowrap;
 }
+
+/* Hidden on desktop/tablet — only the phone-width drawer needs a button to
+   open the sidebar, since it's off-canvas there instead of just narrower. */
+.sidebar__mobile-toggle {
+  display: none;
+}
+
+.sidebar__backdrop {
+  display: none;
+}
+
+/* ===== Tablet (≤1024px): unchanged CSS here — the auto-collapse default
+   on this range is a JS behavior (see Sidebar.tsx's readInitialCollapsed),
+   not a style override, so it reuses the existing .sidebar--collapsed
+   rules above as-is. Nothing to add for this range specifically. ===== */
+
+/* ===== Phone (≤640px): off-canvas drawer, hidden by default, opened via
+   the hamburger button, closed via backdrop tap / X / picking a nav item. */
+@media (max-width: 640px) {
+  .sidebar__mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    z-index: 1001;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+
+  .sidebar__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background-color: rgba(2, 6, 16, 0.6);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    height: 100vh;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+    transition: transform 200ms ease;
+  }
+
+  .sidebar--mobile-open {
+    transform: translateX(0);
+  }
+
+  /* The icon-rail "collapsed" mode doesn't apply once the sidebar is an
+     overlay instead of squeezing page content — while open, it always
+     shows the full labeled nav regardless of the desktop/tablet
+     collapsed preference. Combined-class selectors here (specificity
+     0,2,0) win over the plain .sidebar--collapsed rules (0,1,0) above
+     without needing !important. */
+  .sidebar--mobile-open.sidebar--collapsed {
+    width: 16rem;
+    padding: 1.25rem 1rem;
+  }
+
+  .sidebar--mobile-open .sidebar__brand {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .sidebar--mobile-open .sidebar__logo {
+    height: 3.25rem;
+  }
+
+  .sidebar--mobile-open .sidebar__item,
+  .sidebar--mobile-open .sidebar__logout {
+    justify-content: flex-start;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .sidebar--mobile-open .sidebar__item-label {
+    opacity: 1;
+    max-width: 10rem;
+  }
+
+  .sidebar--mobile-open .sidebar__footer {
+    max-height: 3rem;
+    opacity: 1;
+    padding-top: 1rem;
+    border-top-color: var(--color-border);
+  }
+}

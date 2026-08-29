@@ -140,3 +140,14 @@
   color: var(--color-text-secondary);
   padding: 2rem !important;
 }
+
+/* Title + two non-shrinking action buttons in one unbreakable row has no
+   safety net today — wrap onto a second line instead of squeezing/
+   overflowing once the sidebar (tablet) or outer page width (phone)
+   leaves little room. */
+@media (max-width: 640px) {
+  .produtos-page__header {
+    flex-wrap: wrap;
+    padding: 1rem 1.25rem;
+  }
+}

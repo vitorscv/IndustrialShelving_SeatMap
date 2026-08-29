@@ -173,3 +173,45 @@
   margin: 0;
   color: var(--color-danger);
 }
+
+/* ===== Tablet (≤1024px): the side panel (20rem, non-shrinking) only ever
+   appears once a position is selected — stack it below the grid instead of
+   squeezing the whole operational area down to a sliver next to it. ===== */
+@media (max-width: 1024px) {
+  .overview-page__body {
+    flex-direction: column;
+    /* align-items: flex-start (base rule, above) was written for the row
+       layout, to top-align the side panel next to main content — in
+       column direction that same value applies to the now-horizontal
+       cross axis instead, so children shrink-wrap their own content
+       width rather than stretching to fill it. That's what was actually
+       forcing .overview-page__main (and everything inside it, all the
+       way down to the seat map) wider than this container, instead of
+       the intended innermost scroll container handling the overflow. */
+    align-items: stretch;
+  }
+}
+
+/* ===== Phone (≤640px): tighter padding, and the search/filter/toggle row
+   wraps instead of forcing horizontal overflow — the search box takes its
+   own full-width row since it's the field used most, filter+toggle wrap
+   together onto the next line. ===== */
+@media (max-width: 640px) {
+  .overview-page__header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .overview-page__body {
+    padding: 1.25rem;
+  }
+
+  .overview-page__toolbar {
+    flex-wrap: wrap;
+  }
+
+  .overview-page__search {
+    flex: 1 1 100%;
+  }
+}

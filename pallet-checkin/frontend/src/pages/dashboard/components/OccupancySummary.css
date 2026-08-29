@@ -185,3 +185,27 @@
   width: 3.5rem;
   height: 0.75rem;
 }
+
+/* ===== Tablet/phone (≤1024px): a fixed 5-across row has no room to shrink
+   into once the sidebar (and, on phone, the outer page padding) eats into
+   the available width — wrap into ~2 columns instead of squeezing every
+   card (and, worst, the gauge card's own internal row content) past
+   legibility. ===== */
+@media (max-width: 1024px) {
+  .occupancy-summary {
+    flex-wrap: wrap;
+  }
+
+  .occupancy-summary__stat {
+    flex: 1 1 calc(50% - 0.75rem);
+    min-width: 0;
+  }
+}
+
+/* ===== Phone, very narrow (≤480px): 2 columns still get tight for the
+   4-digit stat cards — stack to 1 per row instead. ===== */
+@media (max-width: 480px) {
+  .occupancy-summary__stat {
+    flex: 1 1 100%;
+  }
+}
