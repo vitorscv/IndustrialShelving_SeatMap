@@ -1,16 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
+import { ArrowDownToLine, ArrowUpFromLine, Trash2 } from 'lucide-react';
 import { usePositionsPolling } from '../../hooks/usePositionsPolling';
 import { fetchMovements } from '../../services/api';
-import { useAuth } from '../../services/auth';
-import type { PaginatedMovements } from '../../types/position';
+import { useAuth, useRole } from '../../services/auth';
+import type { MovementListItem, PaginatedMovements } from '../../types/position';
+import { DeleteMovementModal } from '../../components/DeleteMovementModal/DeleteMovementModal';
 import './MovementsPage.css';
 
 const LIMIT = 20;
 
 export function MovementsPage() {
   const { token } = useAuth();
+  const role = useRole();
+  // MovementsPage already sits behind AdminRoute (see App.tsx), so this is
+  // belt-and-suspenders — same pattern PositionSidePanel/Sidebar use to gate
+  // ADMIN-only controls, kept here in case that route guard ever changes.
+  const isAdmin = role === 'ADMIN';
   const { shelves } = usePositionsPolling();
   const [searchParams, setSearchParams] = useSearchParams();
   const positionIdFilter = searchParams.get('positionId');
@@ -23,6 +29,16 @@ export function MovementsPage() {
   const [result, setResult] = useState<PaginatedMovements | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<MovementListItem | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Brief, self-dismissing confirmation — no toast system exists yet in
+  // this app, so a small inline banner (auto-cleared) fills that role here.
+  useEffect(() => {
+    if (!successMessage) return;
+    const timeoutId = window.setTimeout(() => setSuccessMessage(null), 4000);
+    return () => window.clearTimeout(timeoutId);
+  }, [successMessage]);
 
   // Any filter change (including the positionId scope from the side panel's
   // "Histórico da posição" link) restarts pagination at page 1. Adjusted
@@ -72,6 +88,24 @@ export function MovementsPage() {
     };
   }, [token, page, shelfId, from, to, positionIdFilter]);
 
+  // Removes the row immediately (rather than re-fetching the current page)
+  // and decrements the total shown in the pagination footer to match — the
+  // modal already confirmed the delete succeeded server-side.
+  function handleDeleted(id: string) {
+    setResult((current) =>
+      current
+        ? {
+            ...current,
+            data: current.data.filter((item) => item.id !== id),
+            total: Math.max(0, current.total - 1),
+          }
+        : current,
+    );
+    setSuccessMessage('Movimentação excluída com sucesso.');
+  }
+
+  const columnCount = isAdmin ? 10 : 9;
+
   return (
     <div className="movements-page">
       <div className="movements-page__header">
@@ -79,6 +113,12 @@ export function MovementsPage() {
       </div>
 
       <div className="movements-page__content">
+        {successMessage && (
+          <div className="movements-page__success-banner" role="status">
+            {successMessage}
+          </div>
+        )}
+
         {positionIdFilter && (
           <div className="movements-page__scope-banner">
             Filtrando pela posição selecionada
@@ -135,12 +175,13 @@ export function MovementsPage() {
                 <th>Produto</th>
                 <th>Quantidade</th>
                 <th>Vendedor/Cidade</th>
+                {isAdmin && <th>Ações</th>}
               </tr>
             </thead>
             <tbody>
               {!loading && result?.data.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="movements-page__empty">
+                  <td colSpan={columnCount} className="movements-page__empty">
                     Nenhuma movimentação encontrada.
                   </td>
                 </tr>
@@ -167,6 +208,19 @@ export function MovementsPage() {
                   <td>{item.product}</td>
                   <td>{new Intl.NumberFormat('pt-BR').format(item.quantity)}</td>
                   <td>{item.salesInfo}</td>
+                  {isAdmin && (
+                    <td>
+                      <button
+                        type="button"
+                        className="movements-page__delete-button"
+                        onClick={() => setDeleteTarget(item)}
+                        aria-label="Excluir movimentação"
+                        title="Excluir movimentação"
+                      >
+                        <Trash2 size={14} aria-hidden="true" />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -195,6 +249,12 @@ export function MovementsPage() {
           </div>
         )}
       </div>
+
+      <DeleteMovementModal
+        movement={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onDeleted={handleDeleted}
+      />
     </div>
   );
 }

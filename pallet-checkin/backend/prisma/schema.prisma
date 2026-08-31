@@ -81,6 +81,23 @@ model User {
   updatedAt    DateTime @updatedAt
 }
 
+// Audit trail for ADMIN-initiated deletions of fictitious/mistaken Movement
+// rows (see DELETE /movements/:id). Deliberately has NO relation back to
+// Movement — the whole point is that the Movement row is gone by the time
+// this is read, so deletedRecordSnapshot is a frozen Json copy of its key
+// fields (plus shelf/level/number, which live on the related Position and
+// would otherwise be unrecoverable once the Movement itself is deleted).
+// deletedByUsername is denormalized (not just deletedByUserId) so this log
+// stays human-readable without a join, even if the User is later removed.
+model MovementDeletionLog {
+  id                    String   @id @default(uuid())
+  deletedAt             DateTime @default(now())
+  deletedByUserId       String
+  deletedByUsername     String
+  reason                String
+  deletedRecordSnapshot Json
+}
+
 // A flat catalog used only for check-in autocomplete suggestions — the
 // Produto field on a Movement/Position stays free text regardless (see
 // ProductAutocomplete on the frontend), this is never a foreign key or a

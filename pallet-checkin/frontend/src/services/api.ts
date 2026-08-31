@@ -5,6 +5,7 @@ import type {
   ImportProductsResult,
   ListMovementsParams,
   Movement,
+  MovementDeletionLog,
   MovementType,
   OccupancySummary,
   PaginatedMovements,
@@ -222,6 +223,21 @@ export function downloadStalePositionsReport(minDays: number, token: string): Pr
     token,
     'relatorio-posicoes-paradas.xlsx',
   );
+}
+
+// ADMIN only (backend-enforced) — deletes one fictitious/mistaken Movement
+// row. `reason` is required by the backend; the returned log entry is the
+// audit trail this deletion left behind.
+export function deleteMovement(
+  id: string,
+  reason: string,
+  token: string,
+): Promise<MovementDeletionLog> {
+  return request(`/movements/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ reason }),
+  });
 }
 
 export function fetchMovements(

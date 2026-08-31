@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PositionsService } from '../positions/positions.service';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { ListMovementsDto } from './dto/list-movements.dto';
+import { DeleteMovementDto } from './dto/delete-movement.dto';
 
 @Injectable()
 export class MovementsService {
@@ -122,5 +123,60 @@ export class MovementsService {
       limit,
       totalPages: Math.max(1, Math.ceil(total / limit)),
     };
+  }
+
+  // Deletes a fictitious/mistaken Movement row. Deliberately does NOT touch
+  // Position — the position's status/quantity/product/etc. reflect its
+  // current real-world state (set by the most recent check-in/check-out),
+  // which is independent of whether an older history row about it still
+  // exists. Removing a row from the log must never retroactively change
+  // what's physically on the shelf.
+  async remove(id: string, dto: DeleteMovementDto, user: { userId: string; username: string }) {
+    return this.prisma.$transaction(async (tx) => {
+      const movement = await tx.movement.findUnique({
+        where: { id },
+        include: { position: { include: { shelf: true } } },
+      });
+      if (!movement) {
+        throw new NotFoundException(`Movement ${id} not found`);
+      }
+
+      // Snapshotted as plain JSON (not a relation to the Movement row) so
+      // this log entry stays self-contained and readable even after the
+      // Movement itself — deleted right after this — is gone.
+      const deletedRecordSnapshot = {
+        // Serialized to a string — Prisma's Json field only accepts
+        // JSON-native values, not a Date instance.
+        timestamp: movement.timestamp.toISOString(),
+        type: movement.type,
+        shelfId: movement.position.shelfId,
+        shelfTitle: movement.position.shelf.title,
+        level: movement.position.level,
+        number: movement.position.number,
+        orderNumber: movement.orderNumber,
+        product: movement.product,
+        quantity: movement.quantity,
+        salesInfo: movement.salesInfo,
+      };
+
+      const log = await tx.movementDeletionLog.create({
+        data: {
+          deletedByUserId: user.userId,
+          deletedByUsername: user.username,
+          reason: dto.reason,
+          deletedRecordSnapshot,
+        },
+      });
+
+      await tx.movement.delete({ where: { id } });
+
+      return log;
+    });
+  }
+
+  findAllDeletionLogs() {
+    return this.prisma.movementDeletionLog.findMany({
+      orderBy: { deletedAt: 'desc' },
+    });
   }
 }

@@ -84,6 +84,28 @@ export interface MovementListItem {
   number: number;
 }
 
+// Returned by DELETE /movements/:id — the audit-log entry created for that
+// deletion (see MovementDeletionLog in the backend's prisma/schema.prisma).
+export interface MovementDeletionLog {
+  id: string;
+  deletedAt: string;
+  deletedByUserId: string;
+  deletedByUsername: string;
+  reason: string;
+  deletedRecordSnapshot: {
+    timestamp: string;
+    type: MovementType;
+    shelfId: string;
+    shelfTitle: string;
+    level: string;
+    number: number;
+    orderNumber: string;
+    product: string;
+    quantity: number;
+    salesInfo: string;
+  };
+}
+
 export interface PaginatedMovements {
   data: MovementListItem[];
   total: number;
