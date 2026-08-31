@@ -1,11 +1,9 @@
 import type { Position, Shelf } from '../../../types/position';
-import { matchesPositionSearch } from '../../../utils/positionSearch';
 import { formatShelfLabel, padNumber } from '../../../utils/format';
 import './PositionListView.css';
 
 interface PositionListViewProps {
   shelves: Shelf[];
-  searchQuery: string;
   selectedPositionId: string | null;
   onSelectPosition: (position: Position) => void;
 }
@@ -18,15 +16,12 @@ const STATUS_LABELS: Record<Position['status'], string> = {
 
 export function PositionListView({
   shelves,
-  searchQuery,
   selectedPositionId,
   onSelectPosition,
 }: PositionListViewProps) {
   const rows = shelves
     .flatMap((shelf) =>
-      shelf.positions
-        .filter((position) => matchesPositionSearch(position, shelf.title, searchQuery))
-        .map((position) => ({ position, shelfTitle: shelf.title })),
+      shelf.positions.map((position) => ({ position, shelfTitle: shelf.title })),
     )
     // Same order as the grid: shelf, then level top-to-bottom, then number.
     .sort((a, b) => {
@@ -65,6 +60,7 @@ export function PositionListView({
                 position.id === selectedPositionId ? 'position-list-view__row--selected' : ''
               }
               onClick={() => onSelectPosition(position)}
+              data-position-id={position.id}
             >
               <td>
                 {position.level}-{padNumber(position.number)}

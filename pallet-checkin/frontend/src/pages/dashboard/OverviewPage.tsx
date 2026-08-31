@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { LayoutGrid, List, Search } from 'lucide-react';
+import { LayoutGrid, List } from 'lucide-react';
 import { usePositionsPolling } from '../../hooks/usePositionsPolling';
 import { fetchOccupancySummary } from '../../services/api';
 import { useAuth } from '../../services/auth';
@@ -12,6 +12,7 @@ import { OccupancySummary } from './components/OccupancySummary';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { StatusLegend } from './components/StatusLegend';
 import { PositionListView } from './components/PositionListView';
+import { PositionSearchBar } from './components/PositionSearchBar';
 import './OverviewPage.css';
 
 const SUMMARY_POLL_INTERVAL_MS = 7000;
@@ -24,7 +25,6 @@ export function OverviewPage() {
   const [summary, setSummary] = useState<OccupancySummaryData | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [summaryError, setSummaryError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [shelfFilter, setShelfFilter] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('mapa');
   const [selectedPositionId, setSelectedPositionId] = useState<string | null>(null);
@@ -33,7 +33,11 @@ export function OverviewPage() {
   // salesperson/city likely applies to several pallets moved in a row from
   // the dashboard too.
   const [salesInfo, setSalesInfo] = useState('');
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  // Set right before a search-suggestion pick changes selectedPositionId (and
+  // possibly shelfFilter, if the match lives outside the current filter) —
+  // the effect below waits for that render to land, then scrolls the now-
+  // visible cell/row into view.
+  const scrollToPositionRef = useRef(false);
 
   // Ticks once a second purely to force "Atualizado há Xs" to keep
   // recomputing as time passes — the underlying `lastUpdated` only changes
@@ -82,19 +86,6 @@ export function OverviewPage() {
     };
   }, [token]);
 
-  // Ctrl/Cmd+K jumps straight to the search box, matching the shortcut
-  // hint shown inside it.
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault();
-        searchInputRef.current?.focus();
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
   // Re-derived from the live polled shelves on every render (not a frozen
   // snapshot from the moment of the click) — so the side panel always
   // matches the position's real, current status.
@@ -120,6 +111,29 @@ export function OverviewPage() {
     setSelectedPositionId((current) => (current === position.id ? null : position.id));
   }
 
+  // Picking a search suggestion is always "open this", never a toggle —
+  // unlike clicking a cell directly, re-picking the same suggestion should
+  // never close the panel. If the match belongs to a shelf hidden by the
+  // "Todas estantes" filter, that filter is cleared so the position actually
+  // exists in the DOM to scroll to.
+  function handleSelectSearchSuggestion(position: Position, shelfId: string) {
+    if (shelfFilter && shelfFilter !== shelfId) {
+      setShelfFilter('');
+    }
+    setSelectedPositionId(position.id);
+    scrollToPositionRef.current = true;
+  }
+
+  useEffect(() => {
+    if (!scrollToPositionRef.current || !selectedPositionId) return;
+    scrollToPositionRef.current = false;
+    const frame = requestAnimationFrame(() => {
+      const element = document.querySelector(`[data-position-id="${selectedPositionId}"]`);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [selectedPositionId, shelfFilter, viewMode]);
+
   return (
     <div className="overview-page">
       <div className="overview-page__header">
@@ -133,18 +147,7 @@ export function OverviewPage() {
       <div className="overview-page__body">
         <div className="overview-page__main">
           <div className="overview-page__toolbar">
-            <div className="overview-page__search">
-              <Search size={16} className="overview-page__search-icon" aria-hidden="true" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                className="overview-page__search-input"
-                placeholder="Buscar posição, produto ou quantidade..."
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-              />
-              <kbd className="overview-page__search-kbd">Ctrl K</kbd>
-            </div>
+            <PositionSearchBar shelves={shelves} onSelectPosition={handleSelectSearchSuggestion} />
 
             <select
               className="overview-page__shelf-filter"
@@ -188,13 +191,11 @@ export function OverviewPage() {
               shelves={visibleShelves}
               selectedPositionId={selectedPositionId}
               onSelectPosition={handleSelectPosition}
-              searchQuery={searchQuery}
             />
           )}
           {!loading && !error && viewMode === 'lista' && (
             <PositionListView
               shelves={visibleShelves}
-              searchQuery={searchQuery}
               selectedPositionId={selectedPositionId}
               onSelectPosition={handleSelectPosition}
             />

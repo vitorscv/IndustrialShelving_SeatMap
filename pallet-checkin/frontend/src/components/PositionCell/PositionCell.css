@@ -11,12 +11,6 @@
     opacity 150ms ease;
 }
 
-/* Doesn't match the active search — stays in place (not hidden) so the
-   grid layout never jumps around while typing. */
-.position-cell--dimmed {
-  opacity: 0.3;
-}
-
 /* Very light top-down sheen on top of the flat status color — just enough
    to read as "raised" instead of a completely flat rectangle. */
 .position-cell::after {

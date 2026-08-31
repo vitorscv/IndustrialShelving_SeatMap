@@ -1,0 +1,148 @@
+.position-search-bar {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.position-search-bar__icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+.position-search-bar__input {
+  width: 100%;
+  padding: 0.75rem 3.5rem 0.75rem 2.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  transition: border-color 0.15s ease;
+}
+
+.position-search-bar__input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.position-search-bar__input:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+}
+
+.position-search-bar__kbd {
+  position: absolute;
+  right: 0.75rem;
+  padding: 0.15rem 0.45rem;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.position-search-bar__dropdown {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  max-height: 22rem;
+  overflow-y: auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+.position-search-bar__suggestion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  text-align: left;
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background: none;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.position-search-bar__suggestion:hover,
+.position-search-bar__suggestion--highlighted {
+  background-color: var(--color-bg);
+}
+
+.position-search-bar__suggestion-primary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.position-search-bar__suggestion-secondary {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.position-search-bar__status {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.position-search-bar__status--free {
+  color: var(--color-success);
+  background-color: color-mix(in srgb, var(--color-success) 18%, transparent);
+}
+
+.position-search-bar__status--occupied {
+  color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 18%, transparent);
+}
+
+.position-search-bar__status--blocked {
+  color: var(--color-warning);
+  background-color: color-mix(in srgb, var(--color-warning) 18%, transparent);
+}
+
+.position-search-bar__empty,
+.position-search-bar__more {
+  padding: 0.65rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+/* ===== Tablet/phone: same breakpoints already established for the rest of
+   the dashboard chrome (OverviewPage.css) — the dropdown just needs to stay
+   readable at a narrower width, no new breakpoints introduced. ===== */
+@media (max-width: 1024px) {
+  .position-search-bar__dropdown {
+    max-height: 18rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .position-search-bar__suggestion-primary {
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
+  }
+}
