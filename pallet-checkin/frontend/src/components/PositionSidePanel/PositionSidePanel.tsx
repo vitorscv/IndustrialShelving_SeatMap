@@ -162,11 +162,11 @@ export function PositionSidePanel({ selection, onClose, onMovimentar }: Position
             </div>
             <div className="position-side-panel__row">
               <dt>Quantidade</dt>
-              <dd>
-                {position.quantity !== null
-                  ? new Intl.NumberFormat('pt-BR').format(position.quantity)
-                  : '—'}
-              </dd>
+              <dd>{position.quantity ?? '—'}</dd>
+            </div>
+            <div className="position-side-panel__row">
+              <dt>Vendedor/Cidade</dt>
+              <dd>{position.salesInfo ?? '—'}</dd>
             </div>
             {isAdmin && (
               <div className="position-side-panel__row">

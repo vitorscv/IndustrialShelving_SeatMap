@@ -47,7 +47,7 @@ export class MovementsService {
       // checked out.
       const orderNumber = isCheckIn ? dto.orderNumber! : (position.orderNumber ?? 'N/A');
       const product = isCheckIn ? dto.product! : (position.product ?? 'N/A');
-      const quantity = isCheckIn ? dto.quantity! : (position.quantity ?? 0);
+      const quantity = isCheckIn ? dto.quantity! : (position.quantity ?? '0');
       const salesInfo = isCheckIn ? dto.salesInfo! : (position.salesInfo ?? 'N/A');
 
       const movement = await tx.movement.create({

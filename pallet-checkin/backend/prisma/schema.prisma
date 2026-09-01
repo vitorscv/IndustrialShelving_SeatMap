@@ -43,7 +43,11 @@ model Position {
   level       String
   number      Int
   status      PositionStatus @default(FREE)
-  quantity    Int?
+  // Free text, not a number: one or more positive integers separated by
+  // "/" (e.g. "2500/3000" for two orders combined on one pallet). See
+  // src/common/quantity.ts's QUANTITY_PATTERN/parseQuantity for the
+  // validated shape and how callers sum it.
+  quantity    String?
   orderNumber String?
   product     String?
   salesInfo   String?
@@ -59,7 +63,8 @@ model Movement {
   positionId   String
   position     Position     @relation(fields: [positionId], references: [id])
   type         MovementType
-  quantity     Int
+  // Same free-text "N" or "N/N/..." shape as Position.quantity above.
+  quantity     String
   orderNumber  String
   product      String
   salesInfo    String

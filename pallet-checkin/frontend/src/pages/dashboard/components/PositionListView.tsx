@@ -75,11 +75,7 @@ export function PositionListView({
               </td>
               <td>{position.product ?? '—'}</td>
               <td>{position.orderNumber ?? '—'}</td>
-              <td>
-                {position.quantity !== null
-                  ? new Intl.NumberFormat('pt-BR').format(position.quantity)
-                  : '—'}
-              </td>
+              <td>{position.quantity ?? '—'}</td>
             </tr>
           ))}
         </tbody>

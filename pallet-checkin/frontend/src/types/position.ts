@@ -8,7 +8,10 @@ export interface Position {
   level: string;
   number: number;
   status: PositionStatus;
-  quantity: number | null;
+  // Free text, not a plain number: one or more positive integers separated
+  // by "/" (e.g. "2500/3000" — two orders combined on one pallet). See
+  // utils/quantity.ts's QUANTITY_PATTERN/parseQuantity.
+  quantity: string | null;
   orderNumber: string | null;
   product: string | null;
   salesInfo: string | null;
@@ -43,7 +46,7 @@ export interface Movement {
   id: string;
   positionId: string;
   type: MovementType;
-  quantity: number;
+  quantity: string;
   orderNumber: string;
   product: string;
   salesInfo: string;
@@ -56,7 +59,7 @@ export interface CreateMovementInput {
   salesInfo: string;
   // Required on CHECK_IN; ignored by the backend on CHECK_OUT (it reads
   // the values already stored on the Position instead).
-  quantity?: number;
+  quantity?: string;
   orderNumber?: string;
   product?: string;
 }
@@ -73,7 +76,7 @@ export interface MovementListItem {
   id: string;
   timestamp: string;
   type: MovementType;
-  quantity: number;
+  quantity: string;
   orderNumber: string;
   product: string;
   salesInfo: string;
@@ -101,7 +104,7 @@ export interface MovementDeletionLog {
     number: number;
     orderNumber: string;
     product: string;
-    quantity: number;
+    quantity: string;
     salesInfo: string;
   };
 }

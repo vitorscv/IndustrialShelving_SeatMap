@@ -206,7 +206,7 @@ export function MovementsPage() {
                   <td>{item.number}</td>
                   <td>{item.orderNumber}</td>
                   <td>{item.product}</td>
-                  <td>{new Intl.NumberFormat('pt-BR').format(item.quantity)}</td>
+                  <td>{item.quantity}</td>
                   <td>{item.salesInfo}</td>
                   {isAdmin && (
                     <td>

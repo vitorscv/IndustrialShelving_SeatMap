@@ -2,12 +2,15 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import type { MovementType, Position } from '../../types/position';
 import { ProductAutocomplete } from '../ProductAutocomplete/ProductAutocomplete';
+import { isQuantityBeingTyped, isQuantityValid } from '../../utils/quantity';
 import './CheckinForm.css';
 
 export interface CheckinFormSubmitInput {
   // Only meaningful (and only sent) on the CHECK_IN path — CHECK_OUT reads
   // quantity/orderNumber/product from the Position server-side instead.
-  quantity?: number;
+  // Free text, not a plain number: one or more positive integers separated
+  // by "/" (e.g. "2500/3000" for two orders combined on one pallet).
+  quantity?: string;
   orderNumber?: string;
   product?: string;
   // Always present, but only ever user-edited on CHECK_IN — on CHECK_OUT
@@ -51,8 +54,16 @@ export function CheckinForm({
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
+
+    if (isCheckIn && !isQuantityValid(quantity)) {
+      setError(
+        'Quantidade inválida — use um número (ex.: 5000) ou vários separados por "/" (ex.: 2500/3000)',
+      );
+      return;
+    }
+
     const input: CheckinFormSubmitInput = isCheckIn
-      ? { quantity: Number(quantity), orderNumber, product, salesInfo }
+      ? { quantity: quantity.trim(), orderNumber, product, salesInfo }
       : { salesInfo: position.salesInfo ?? '' };
     try {
       await onSubmit(input);
@@ -97,11 +108,18 @@ export function CheckinForm({
             <label>
               Quantidade
               <input
-                type="number"
-                min="1"
-                step="1"
+                type="text"
+                inputMode="text"
+                placeholder="5000 ou 2500/3000"
                 value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
+                onChange={(e) => {
+                  // Blocks letters/other stray characters as they're typed;
+                  // still allows "2500/" mid-typing toward a valid value —
+                  // full-shape validation only happens on submit.
+                  if (isQuantityBeingTyped(e.target.value)) {
+                    setQuantity(e.target.value);
+                  }
+                }}
                 required
               />
             </label>

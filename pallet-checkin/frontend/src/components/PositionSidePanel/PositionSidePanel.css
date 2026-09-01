@@ -149,9 +149,14 @@
 .position-side-panel__list {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  /* Was 1rem/0.6rem — cramped with 5 rows now that Vendedor/Cidade joined
+     Pedido/Cliente, Produto, Quantidade and Última movimentação. Bumped to
+     the same padding/gap scale already used for this kind of card
+     elsewhere (checkin-form__fieldset's 0.9rem gap, add-shelf-modal__form's
+     1.5rem padding) rather than inventing new values. */
+  gap: 0.9rem;
   margin: 0;
-  padding: 1rem;
+  padding: 1.25rem;
   background-color: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 8px;
@@ -161,7 +166,7 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .position-side-panel__row dt {
@@ -178,6 +183,12 @@
   font-weight: 600;
   color: var(--color-text-primary);
   text-align: right;
+  /* Belt-and-suspenders for the rare value with no natural break point
+     (e.g. a long code with no spaces) — even stacked full-width (desktop,
+     below) or right-aligned (mobile, unchanged), a wrap should never
+     overflow the card. */
+  overflow-wrap: anywhere;
+  line-height: 1.35;
 }
 
 .position-side-panel__message {
@@ -210,6 +221,40 @@
 
 .position-side-panel__action:hover {
   border-color: var(--color-brand-accent);
+}
+
+/* Desktop-only widening + row layout — the ≤1024px bottom sheet (below)
+   is a separate, already-comfortable full-width surface and is
+   deliberately left untouched here; this block exists so a change to one
+   never silently affects the other. Real production values like salesInfo
+   "GOMES E LIMA/FEIRA DE SANTANA" (29 chars) or product "60 × 90 CONV IMP"
+   were wrapping into 2-3 cramped, right-aligned lines at the old 320px
+   width with a side-by-side label/value row — widening the panel alone
+   doesn't fix that, since the uppercase label (e.g. "VENDEDOR/CIDADE")
+   still eats into the same line the value has to fit on. Stacking
+   label-above/value-below instead gives the value the FULL row width to
+   itself, which is what actually stops the awkward wrapping. */
+@media (min-width: 1025px) {
+  .position-side-panel {
+    /* 320px -> 416px: comfortably fits the longest real values above on
+       one line (see panel-after-1440-cropped.png), without the panel
+       visually colliding with the seat map grid — .overview-page__main's
+       flex: 1; min-width: 0 already shrinks to give it the room, and the
+       grid has its own horizontal scroll container for whatever's left,
+       so nothing needed to change on the grid side. Checked at 1280px too
+       (panel-after-1280-cropped.png) — still comfortable. */
+    width: 26rem;
+  }
+
+  .position-side-panel__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .position-side-panel__row dd {
+    text-align: left;
+  }
 }
 
 /* Backdrop behind the mobile/tablet bottom sheet — invisible/inert on

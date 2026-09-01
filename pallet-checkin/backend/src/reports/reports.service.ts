@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import { MovementType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { parseQuantity } from '../common/quantity';
 import { ExportMovementsQueryDto } from './dto/export-movements-query.dto';
 import { DateRangeQueryDto } from './dto/date-range-query.dto';
 import { StalePositionsQueryDto } from './dto/stale-positions-query.dto';
@@ -166,7 +167,7 @@ export class ReportsService {
     for (const movement of movements) {
       const entry = byProduct.get(movement.product) ?? { count: 0, quantity: 0 };
       entry.count += 1;
-      entry.quantity += movement.quantity;
+      entry.quantity += parseQuantity(movement.quantity);
       byProduct.set(movement.product, entry);
     }
 
@@ -212,7 +213,7 @@ export class ReportsService {
     for (const movement of movements) {
       const entry = bySalesperson.get(movement.salesInfo) ?? { count: 0, quantity: 0 };
       entry.count += 1;
-      entry.quantity += movement.quantity;
+      entry.quantity += parseQuantity(movement.quantity);
       bySalesperson.set(movement.salesInfo, entry);
     }
 

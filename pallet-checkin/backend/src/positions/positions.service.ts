@@ -22,7 +22,7 @@ export class PositionsService {
     id: string,
     data: {
       status: PositionStatus;
-      quantity: number | null;
+      quantity: string | null;
       orderNumber: string | null;
       product: string | null;
       salesInfo: string | null;
