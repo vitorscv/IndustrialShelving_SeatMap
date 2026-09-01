@@ -110,7 +110,6 @@ export function CheckinForm({
               <input
                 type="text"
                 inputMode="text"
-                placeholder="5000 ou 2500/3000"
                 value={quantity}
                 onChange={(e) => {
                   // Blocks letters/other stray characters as they're typed;
