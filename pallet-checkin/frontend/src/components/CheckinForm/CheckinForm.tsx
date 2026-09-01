@@ -94,7 +94,7 @@ export function CheckinForm({
               <input
                 type="text"
                 value={orderNumber}
-                onChange={(e) => setOrderNumber(e.target.value)}
+                onChange={(e) => setOrderNumber(e.target.value.toUpperCase())}
                 required
                 autoFocus
               />
@@ -144,7 +144,7 @@ export function CheckinForm({
           <input
             type="text"
             value={salesInfo}
-            onChange={(e) => onSalesInfoChange(e.target.value)}
+            onChange={(e) => onSalesInfoChange(e.target.value.toUpperCase())}
             required
           />
         </label>

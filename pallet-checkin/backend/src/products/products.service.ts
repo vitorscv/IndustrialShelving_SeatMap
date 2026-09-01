@@ -18,8 +18,14 @@ export class ProductsService {
   // checked against the database directly (Postgres's native
   // mode: 'insensitive') instead of loading everything into memory, since
   // this is a single lookup rather than a whole-file batch.
+  //
+  // Uppercased before storing — the catalog exists to feed suggestions
+  // into the check-in Produto field, which is itself always uppercase now,
+  // so a mixed-case catalog entry would suggest text that gets silently
+  // changed the moment it's selected. Keeping the catalog uppercase too
+  // avoids that mismatch.
   async create(name: string) {
-    const trimmed = name.trim();
+    const trimmed = name.trim().toUpperCase();
     const existing = await this.prisma.product.findFirst({
       where: { name: { equals: trimmed, mode: 'insensitive' } },
     });
@@ -42,7 +48,7 @@ export class ProductsService {
     let skipped = 0;
 
     for (const raw of rawNames) {
-      const trimmed = raw.trim();
+      const trimmed = raw.trim().toUpperCase();
       if (!trimmed) continue; // blank rows count toward neither total
 
       const key = trimmed.toLowerCase();

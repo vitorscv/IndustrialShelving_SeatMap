@@ -38,7 +38,10 @@ export function ProductAutocomplete({ value, onChange, required, autoFocus }: Pr
   }, []);
 
   function selectSuggestion(name: string) {
-    onChange(name);
+    // Uppercased even though the catalog itself is now stored uppercase
+    // (see ProductsService) — belt-and-suspenders in case an older,
+    // not-yet-converted catalog entry is picked.
+    onChange(name.toUpperCase());
     setOpen(false);
   }
 
@@ -48,7 +51,7 @@ export function ProductAutocomplete({ value, onChange, required, autoFocus }: Pr
         type="text"
         value={value}
         onChange={(e) => {
-          onChange(e.target.value);
+          onChange(e.target.value.toUpperCase());
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}

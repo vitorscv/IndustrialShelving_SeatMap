@@ -41,14 +41,22 @@ export class MovementsService {
 
       const isCheckIn = dto.type === MovementType.CHECK_IN;
 
+      // Normalized here regardless of what the frontend already did (it
+      // also uppercases as-typed, but the API could in principle be called
+      // from elsewhere) — this is the actual source of truth for "always
+      // uppercase", not just a UI nicety.
+      const orderNumberInput = dto.orderNumber?.toUpperCase();
+      const productInput = dto.product?.toUpperCase();
+      const salesInfoInput = dto.salesInfo?.toUpperCase();
+
       // On check-out the request body doesn't carry orderNumber/product/
       // quantity — they're read from the position's current state (set at
       // check-in) so the movement still has a full record of what was
       // checked out.
-      const orderNumber = isCheckIn ? dto.orderNumber! : (position.orderNumber ?? 'N/A');
-      const product = isCheckIn ? dto.product! : (position.product ?? 'N/A');
+      const orderNumber = isCheckIn ? orderNumberInput! : (position.orderNumber ?? 'N/A');
+      const product = isCheckIn ? productInput! : (position.product ?? 'N/A');
       const quantity = isCheckIn ? dto.quantity! : (position.quantity ?? '0');
-      const salesInfo = isCheckIn ? dto.salesInfo! : (position.salesInfo ?? 'N/A');
+      const salesInfo = isCheckIn ? salesInfoInput! : (position.salesInfo ?? 'N/A');
 
       const movement = await tx.movement.create({
         data: {
@@ -64,9 +72,9 @@ export class MovementsService {
       const updatedPosition = await this.positionsService.updateOccupancy(tx, dto.positionId, {
         status: isCheckIn ? PositionStatus.OCCUPIED : PositionStatus.FREE,
         quantity: isCheckIn ? dto.quantity! : null,
-        orderNumber: isCheckIn ? dto.orderNumber! : null,
-        product: isCheckIn ? dto.product! : null,
-        salesInfo: isCheckIn ? dto.salesInfo! : null,
+        orderNumber: isCheckIn ? orderNumberInput! : null,
+        product: isCheckIn ? productInput! : null,
+        salesInfo: isCheckIn ? salesInfoInput! : null,
       });
 
       return { movement, position: updatedPosition };

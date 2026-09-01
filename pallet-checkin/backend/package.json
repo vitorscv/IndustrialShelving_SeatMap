@@ -17,6 +17,7 @@
     "prisma:seed-admin": "ts-node prisma/seed-admin.ts",
     "password:change": "ts-node prisma/change-password.ts",
     "prisma:renumber-positions": "ts-node prisma/renumber-positions.ts",
+    "prisma:uppercase-text-fields": "ts-node prisma/uppercase-text-fields.ts",
     "lint": "eslint \"{src,prisma}/**/*.ts\"",
     "test": "jest"
   },
