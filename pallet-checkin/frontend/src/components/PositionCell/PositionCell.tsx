@@ -11,6 +11,11 @@ interface PositionCellProps {
   // cells, while a picker flow disables whichever statuses aren't actionable
   // for the intent currently being carried out.
   disabled?: boolean;
+  // Dims a cell that doesn't match an active search — kept in place (not
+  // hidden) so the grid layout never jumps around while typing. Runs
+  // alongside PositionSearchBar's own suggestions dropdown (ambient
+  // "where in the warehouse" context, not a competing way to select).
+  dimmed?: boolean;
 }
 
 export function PositionCell({
@@ -19,12 +24,14 @@ export function PositionCell({
   selected = false,
   size = 'sm',
   disabled = false,
+  dimmed = false,
 }: PositionCellProps) {
   const classNames = [
     'position-cell',
     `position-cell--${size}`,
     `position-cell--${position.status.toLowerCase()}`,
     selected ? 'position-cell--selected' : '',
+    dimmed ? 'position-cell--dimmed' : '',
   ]
     .filter(Boolean)
     .join(' ');

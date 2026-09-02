@@ -8,6 +8,10 @@ import './PositionSearchBar.css';
 interface PositionSearchBarProps {
   shelves: Shelf[];
   onSelectPosition: (position: Position, shelfId: string) => void;
+  // Reports the same debounced query the dropdown itself matches against —
+  // lets a caller (OverviewPage) drive the grid's ambient dim effect from
+  // the exact same value/timing, so the two are never out of sync.
+  onQueryChange?: (query: string) => void;
 }
 
 interface SearchMatch {
@@ -58,7 +62,7 @@ function suggestionDetail(position: Position): string {
 // filtering (over the shelves already loaded elsewhere — no new endpoint),
 // and keyboard navigation all live here so OverviewPage only has to react to
 // a final "this position was picked" callback.
-export function PositionSearchBar({ shelves, onSelectPosition }: PositionSearchBarProps) {
+export function PositionSearchBar({ shelves, onSelectPosition, onQueryChange }: PositionSearchBarProps) {
   const [inputValue, setInputValue] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -70,6 +74,14 @@ export function PositionSearchBar({ shelves, onSelectPosition }: PositionSearchB
     const timeoutId = window.setTimeout(() => setDebouncedQuery(inputValue), DEBOUNCE_MS);
     return () => window.clearTimeout(timeoutId);
   }, [inputValue]);
+
+  // Fires on the same debounced value the dropdown's own matches use below
+  // (not a separate debounce) — clearing the input on selectMatch() below
+  // is what makes the grid's dim effect clear itself shortly after a
+  // suggestion is clicked, with no extra code needed for that.
+  useEffect(() => {
+    onQueryChange?.(debouncedQuery);
+  }, [debouncedQuery, onQueryChange]);
 
   useEffect(() => {
     setHighlightedIndex(0);

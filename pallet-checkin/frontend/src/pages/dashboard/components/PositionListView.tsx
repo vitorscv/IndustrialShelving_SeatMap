@@ -1,4 +1,5 @@
 import type { Position, Shelf } from '../../../types/position';
+import { matchesPositionSearch } from '../../../utils/positionSearch';
 import { formatShelfLabel, padNumber } from '../../../utils/format';
 import './PositionListView.css';
 
@@ -6,6 +7,13 @@ interface PositionListViewProps {
   shelves: Shelf[];
   selectedPositionId: string | null;
   onSelectPosition: (position: Position) => void;
+  // Ambient dim effect, alongside (not instead of) PositionSearchBar's own
+  // dropdown. Lista originally FILTERED (hid) non-matching rows entirely —
+  // deliberately not restoring that here: this task's whole point is a
+  // lightweight, non-layout-shifting affordance, so Lista gets the same
+  // opacity-based dim as the grid instead, for a consistent feel across
+  // both views rather than reviving the older, more disruptive behavior.
+  searchQuery?: string;
 }
 
 const STATUS_LABELS: Record<Position['status'], string> = {
@@ -18,6 +26,7 @@ export function PositionListView({
   shelves,
   selectedPositionId,
   onSelectPosition,
+  searchQuery = '',
 }: PositionListViewProps) {
   const rows = shelves
     .flatMap((shelf) =>
@@ -56,9 +65,14 @@ export function PositionListView({
           {rows.map(({ position, shelfTitle }) => (
             <tr
               key={position.id}
-              className={
-                position.id === selectedPositionId ? 'position-list-view__row--selected' : ''
-              }
+              className={[
+                position.id === selectedPositionId ? 'position-list-view__row--selected' : '',
+                !matchesPositionSearch(position, shelfTitle, searchQuery)
+                  ? 'position-list-view__row--dimmed'
+                  : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
               onClick={() => onSelectPosition(position)}
               data-position-id={position.id}
             >

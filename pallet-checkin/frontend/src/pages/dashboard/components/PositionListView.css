@@ -32,7 +32,15 @@
 
 .position-list-view__table tbody tr {
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+/* Ambient dim for rows that don't match the active search — same 0.3
+   opacity as the grid's .position-cell--dimmed, alongside (not instead
+   of) PositionSearchBar's dropdown. Rows stay in place (not hidden), same
+   "no layout shift" rule as the grid. */
+.position-list-view__row--dimmed {
+  opacity: 0.3;
 }
 
 .position-list-view__table tbody tr:last-child td {

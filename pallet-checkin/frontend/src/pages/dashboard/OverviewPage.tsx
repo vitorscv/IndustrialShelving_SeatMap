@@ -26,6 +26,10 @@ export function OverviewPage() {
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [summaryError, setSummaryError] = useState<string | null>(null);
   const [shelfFilter, setShelfFilter] = useState('');
+  // Mirrors PositionSearchBar's own debounced query — drives the grid/list's
+  // ambient dim effect, kept in sync with (not a second definition of)
+  // whatever the dropdown itself is matching against.
+  const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('mapa');
   const [selectedPositionId, setSelectedPositionId] = useState<string | null>(null);
   const [movementModalOpen, setMovementModalOpen] = useState(false);
@@ -147,7 +151,11 @@ export function OverviewPage() {
       <div className="overview-page__body">
         <div className="overview-page__main">
           <div className="overview-page__toolbar">
-            <PositionSearchBar shelves={shelves} onSelectPosition={handleSelectSearchSuggestion} />
+            <PositionSearchBar
+              shelves={shelves}
+              onSelectPosition={handleSelectSearchSuggestion}
+              onQueryChange={setSearchQuery}
+            />
 
             <select
               className="overview-page__shelf-filter"
@@ -191,11 +199,13 @@ export function OverviewPage() {
               shelves={visibleShelves}
               selectedPositionId={selectedPositionId}
               onSelectPosition={handleSelectPosition}
+              searchQuery={searchQuery}
             />
           )}
           {!loading && !error && viewMode === 'lista' && (
             <PositionListView
               shelves={visibleShelves}
+              searchQuery={searchQuery}
               selectedPositionId={selectedPositionId}
               onSelectPosition={handleSelectPosition}
             />

@@ -11,6 +11,14 @@
     opacity 150ms ease;
 }
 
+/* Doesn't match the active search — stays in place (not hidden) so the
+   grid layout never jumps around while typing. Purely visual: never
+   affects click/selection, and coexists with PositionSearchBar's dropdown
+   (ambient "where" context, not a second way to pick a result). */
+.position-cell--dimmed {
+  opacity: 0.3;
+}
+
 /* Very light top-down sheen on top of the flat status color — just enough
    to read as "raised" instead of a completely flat rectangle. */
 .position-cell::after {

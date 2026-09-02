@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Position, Shelf } from '../../types/position';
 import { PositionCell } from '../PositionCell/PositionCell';
+import { matchesPositionSearch } from '../../utils/positionSearch';
 import { formatShelfLabel } from '../../utils/format';
 import './SeatMap.css';
 
@@ -8,6 +9,9 @@ interface SeatMapProps {
   shelves: Shelf[];
   selectedPositionId?: string | null;
   onSelectPosition: (position: Position) => void;
+  // Ambient dim effect, alongside (not instead of) PositionSearchBar's own
+  // dropdown — empty string means no active search, nothing dimmed.
+  searchQuery?: string;
 }
 
 function groupByLevel(positions: Position[]): Map<string, Position[]> {
@@ -27,6 +31,7 @@ export function SeatMap({
   shelves,
   selectedPositionId = null,
   onSelectPosition,
+  searchQuery = '',
 }: SeatMapProps) {
   // Drives the entrance transition via a class toggle (plain CSS transition)
   // rather than a @keyframes animation — an animation's fill-forwards state
@@ -121,6 +126,7 @@ export function SeatMap({
                           key={position.id}
                           position={position}
                           selected={position.id === selectedPositionId}
+                          dimmed={!matchesPositionSearch(position, shelf.title, searchQuery)}
                           onSelect={onSelectPosition}
                         />
                       ))}
