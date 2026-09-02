@@ -56,7 +56,10 @@
   margin: 0;
   padding: 0.35rem;
   list-style: none;
-  max-height: 22rem;
+  /* No result cap anymore — every match renders, so this (not a "+N mais"
+     footer) is what keeps a large result set reachable without the
+     dropdown itself growing past a reasonable share of the viewport. */
+  max-height: 26rem;
   overflow-y: auto;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -95,9 +98,13 @@
 .position-search-bar__suggestion-secondary {
   font-size: 0.78rem;
   color: var(--color-text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wraps instead of truncating — with Produto, Pedido/Cliente AND
+     Vendedor/Cidade all on this line now, an ellipsis could hide exactly
+     the field that explains why a match happened (e.g. a hit found only
+     because of salesInfo). overflow-wrap covers the rare single-token
+     value too long to wrap normally (e.g. a long code with no spaces). */
+  overflow-wrap: anywhere;
+  line-height: 1.35;
 }
 
 .position-search-bar__status {
@@ -123,8 +130,7 @@
   background-color: color-mix(in srgb, var(--color-warning) 18%, transparent);
 }
 
-.position-search-bar__empty,
-.position-search-bar__more {
+.position-search-bar__empty {
   padding: 0.65rem;
   text-align: center;
   font-size: 0.8rem;

@@ -20,7 +20,6 @@ interface SearchMatch {
   shelfTitle: string;
 }
 
-const MAX_SUGGESTIONS = 8;
 const DEBOUNCE_MS = 180;
 
 const STATUS_LABELS: Record<Position['status'], string> = {
@@ -54,6 +53,13 @@ function suggestionDetail(position: Position): string {
   const parts = [];
   if (position.product) parts.push(`Produto ${position.product}`);
   if (position.orderNumber) parts.push(`Pedido/Cliente ${position.orderNumber}`);
+  // salesInfo is a matchable field (see matchesPositionSearch) but wasn't
+  // shown here before — a match found specifically because of it (e.g.
+  // searching "gomes e lima") had nothing in the row explaining why it
+  // matched. Always included when present, not just when it's the reason
+  // for THIS match, since knowing who/where a pallet belongs to is useful
+  // context regardless.
+  if (position.salesInfo) parts.push(`Vendedor/Cidade ${position.salesInfo}`);
   return parts.length > 0 ? parts.join(' · ') : 'Sem detalhes';
 }
 
@@ -69,6 +75,7 @@ export function PositionSearchBar({ shelves, onSelectPosition, onQueryChange }: 
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => setDebouncedQuery(inputValue), DEBOUNCE_MS);
@@ -86,6 +93,18 @@ export function PositionSearchBar({ shelves, onSelectPosition, onQueryChange }: 
   useEffect(() => {
     setHighlightedIndex(0);
   }, [debouncedQuery]);
+
+  // Now that the full result set renders (no more 8-item cap), arrowing
+  // past the dropdown's visible edge needs to actually scroll it — native
+  // scrollIntoView with "nearest" only moves the list when the highlighted
+  // row isn't already fully in view, so this is a no-op on mouse-hover
+  // highlight changes (the cursor is already there) and only acts on
+  // keyboard navigation.
+  useEffect(() => {
+    const list = listRef.current;
+    const item = list?.children[highlightedIndex] as HTMLElement | undefined;
+    item?.scrollIntoView({ block: 'nearest' });
+  }, [highlightedIndex]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -110,8 +129,6 @@ export function PositionSearchBar({ shelves, onSelectPosition, onQueryChange }: 
   }, []);
 
   const allMatches = buildMatches(shelves, debouncedQuery);
-  const visibleMatches = allMatches.slice(0, MAX_SUGGESTIONS);
-  const remainingCount = allMatches.length - visibleMatches.length;
   const trimmedQuery = debouncedQuery.trim();
   const showDropdown = open && trimmedQuery !== '';
 
@@ -122,17 +139,17 @@ export function PositionSearchBar({ shelves, onSelectPosition, onQueryChange }: 
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (!showDropdown || visibleMatches.length === 0) return;
+    if (!showDropdown || allMatches.length === 0) return;
 
     if (event.key === 'ArrowDown') {
       event.preventDefault();
-      setHighlightedIndex((current) => Math.min(current + 1, visibleMatches.length - 1));
+      setHighlightedIndex((current) => Math.min(current + 1, allMatches.length - 1));
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
       setHighlightedIndex((current) => Math.max(current - 1, 0));
     } else if (event.key === 'Enter') {
       event.preventDefault();
-      const match = visibleMatches[highlightedIndex];
+      const match = allMatches[highlightedIndex];
       if (match) selectMatch(match);
     } else if (event.key === 'Escape') {
       event.stopPropagation();
@@ -166,11 +183,16 @@ export function PositionSearchBar({ shelves, onSelectPosition, onQueryChange }: 
       <kbd className="position-search-bar__kbd">Ctrl K</kbd>
 
       {showDropdown && (
-        <ul className="position-search-bar__dropdown" id="position-search-bar-listbox" role="listbox">
-          {visibleMatches.length === 0 && (
+        <ul
+          className="position-search-bar__dropdown"
+          id="position-search-bar-listbox"
+          role="listbox"
+          ref={listRef}
+        >
+          {allMatches.length === 0 && (
             <li className="position-search-bar__empty">Nenhum resultado encontrado</li>
           )}
-          {visibleMatches.map((match, index) => (
+          {allMatches.map((match, index) => (
             <li key={match.position.id} role="option" aria-selected={index === highlightedIndex}>
               {/* onMouseDown (not onClick) + preventDefault so the input
                   never blurs (closing the dropdown) before the click
@@ -201,9 +223,6 @@ export function PositionSearchBar({ shelves, onSelectPosition, onQueryChange }: 
               </button>
             </li>
           ))}
-          {remainingCount > 0 && (
-            <li className="position-search-bar__more">+{remainingCount} mais resultados</li>
-          )}
         </ul>
       )}
     </div>
