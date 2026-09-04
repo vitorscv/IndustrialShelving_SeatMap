@@ -39,7 +39,7 @@ export function OverviewPage() {
   // Persists across the modal's opens/closes within the session — the same
   // salesperson/city likely applies to several pallets moved in a row from
   // the dashboard too.
-  const [vendorId, setVendorId] = useState('');
+  const [vendedorText, setVendedorText] = useState('');
   const [cidade, setCidade] = useState('');
   // Set right before a search-suggestion pick changes selectedPositionId (and
   // possibly shelfFilter, if the match lives outside the current filter) —
@@ -232,8 +232,8 @@ export function OverviewPage() {
       {role !== 'VENDEDOR' && (
         <MovementModal
           selection={movementModalOpen ? selection : null}
-          vendorId={vendorId}
-          onVendorIdChange={setVendorId}
+          vendedorText={vendedorText}
+          onVendedorTextChange={setVendedorText}
           cidade={cidade}
           onCidadeChange={setCidade}
           onClose={() => setMovementModalOpen(false)}

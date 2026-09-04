@@ -79,7 +79,13 @@ export interface CreateMovementInput {
   quantity?: string;
   orderNumber?: string;
   product?: string;
-  vendorId?: string;
+  // Raw text as typed — possibly several vendor names joined by "/" (e.g.
+  // "MACHADO/GOMES E LIMA"). The backend resolves a canonical vendorId
+  // only when this is a single name that exactly matches the Vendor
+  // catalog; otherwise the position is stored unlinked (vendorId null),
+  // same as any other legacy free-text salesInfo. See
+  // MovementsService.create.
+  vendedorText?: string;
   cidade?: string;
 }
 

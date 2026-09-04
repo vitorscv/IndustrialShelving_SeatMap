@@ -59,8 +59,7 @@
   letter-spacing: 0.08em;
 }
 
-.checkin-form input,
-.checkin-form select {
+.checkin-form input {
   padding: 0.75rem;
   font-family: var(--font-sans);
   font-size: 1.1rem;
@@ -73,8 +72,7 @@
   color: var(--color-text-primary);
 }
 
-.checkin-form input:focus,
-.checkin-form select:focus {
+.checkin-form input:focus {
   outline: none;
   border-color: var(--color-brand-accent);
   box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCidadeSuggestions } from '../../hooks/useCidadeSuggestions';
 import { useCities } from '../../hooks/useCities';
+import { normalizeForSearch } from '../../utils/normalizeForSearch';
 import './CidadeAutocomplete.css';
 
 interface CidadeAutocompleteProps {
@@ -15,19 +16,6 @@ interface Suggestion {
 }
 
 const MAX_SUGGESTIONS = 10;
-
-// Accent-insensitive compare key — decomposes accented characters into
-// base letter + combining mark (NFD), then strips the combining marks, so
-// "vitoria" (typed with no accent) matches "Vitória". Used only for
-// matching/dedup; the value actually stored keeps whatever accents the
-// source text had (see selectSuggestion — same as this app's existing
-// .toUpperCase() convention elsewhere, which also never strips accents).
-function normalizeForSearch(text: string): string {
-  return text
-    .normalize('NFD')
-    .replace(/\p{M}/gu, '')
-    .toLowerCase();
-}
 
 // Reformats an IBGE-displayed "Cidade - UF" entry into the stored
 // "CIDADE-UF" shape (no spaces around the hyphen) — e.g. "Itatim - BA"

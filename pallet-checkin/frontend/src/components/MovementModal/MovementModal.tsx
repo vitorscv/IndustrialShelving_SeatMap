@@ -15,8 +15,8 @@ export interface MovementSelection {
 
 interface MovementModalProps {
   selection: MovementSelection | null;
-  vendorId: string;
-  onVendorIdChange: (value: string) => void;
+  vendedorText: string;
+  onVendedorTextChange: (value: string) => void;
   cidade: string;
   onCidadeChange: (value: string) => void;
   onClose: () => void;
@@ -35,8 +35,8 @@ interface MovementModalProps {
 // with no extra indirection.
 export function MovementModal({
   selection,
-  vendorId,
-  onVendorIdChange,
+  vendedorText,
+  onVendedorTextChange,
   cidade,
   onCidadeChange,
   onClose,
@@ -93,7 +93,7 @@ export function MovementModal({
           quantity: input.quantity,
           orderNumber: input.orderNumber,
           product: input.product,
-          vendorId: input.vendorId,
+          vendedorText: input.vendedorText,
           cidade: input.cidade,
         },
         token!,
@@ -132,8 +132,8 @@ export function MovementModal({
         <CheckinForm
           position={position}
           shelfTitle={shelfTitle}
-          vendorId={vendorId}
-          onVendorIdChange={onVendorIdChange}
+          vendedorText={vendedorText}
+          onVendedorTextChange={onVendedorTextChange}
           cidade={cidade}
           onCidadeChange={onCidadeChange}
           onSubmit={handleSubmit}

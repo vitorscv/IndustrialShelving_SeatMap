@@ -3,7 +3,7 @@ import type { FormEvent } from 'react';
 import type { MovementType, Position } from '../../types/position';
 import { ProductAutocomplete } from '../ProductAutocomplete/ProductAutocomplete';
 import { CidadeAutocomplete } from '../CidadeAutocomplete/CidadeAutocomplete';
-import { useVendors } from '../../hooks/useVendors';
+import { VendedorAutocomplete } from '../VendedorAutocomplete/VendedorAutocomplete';
 import { isQuantityBeingTyped, isQuantityValid } from '../../utils/quantity';
 import './CheckinForm.css';
 
@@ -16,15 +16,19 @@ export interface CheckinFormSubmitInput {
   quantity?: string;
   orderNumber?: string;
   product?: string;
-  vendorId?: string;
+  // Raw text as typed, possibly several vendor names joined by "/" (e.g.
+  // "MACHADO/GOMES E LIMA") — the backend resolves this into a canonical
+  // vendorId only for the single-exact-catalog-match case; see
+  // movements.service.ts.
+  vendedorText?: string;
   cidade?: string;
 }
 
 interface CheckinFormProps {
   position: Position;
   shelfTitle: string;
-  vendorId: string;
-  onVendorIdChange: (value: string) => void;
+  vendedorText: string;
+  onVendedorTextChange: (value: string) => void;
   cidade: string;
   onCidadeChange: (value: string) => void;
   onSubmit: (input: CheckinFormSubmitInput) => Promise<void>;
@@ -40,14 +44,13 @@ function movementTypeFor(position: Position): MovementType {
 export function CheckinForm({
   position,
   shelfTitle,
-  vendorId,
-  onVendorIdChange,
+  vendedorText,
+  onVendedorTextChange,
   cidade,
   onCidadeChange,
   onSubmit,
   submitting,
 }: CheckinFormProps) {
-  const { vendors } = useVendors();
   const [orderNumber, setOrderNumber] = useState('');
   const [product, setProduct] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -68,7 +71,7 @@ export function CheckinForm({
     }
 
     const input: CheckinFormSubmitInput = isCheckIn
-      ? { quantity: quantity.trim(), orderNumber, product, vendorId, cidade }
+      ? { quantity: quantity.trim(), orderNumber, product, vendedorText, cidade }
       : {};
     try {
       await onSubmit(input);
@@ -147,16 +150,7 @@ export function CheckinForm({
         <>
           <label>
             Vendedor
-            <select value={vendorId} onChange={(e) => onVendorIdChange(e.target.value)} required>
-              <option value="" disabled>
-                Selecione um vendedor
-              </option>
-              {vendors.map((vendor) => (
-                <option key={vendor.id} value={vendor.id}>
-                  {vendor.name}
-                </option>
-              ))}
-            </select>
+            <VendedorAutocomplete value={vendedorText} onChange={onVendedorTextChange} required />
           </label>
 
           <label>

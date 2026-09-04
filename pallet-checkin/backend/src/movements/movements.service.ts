@@ -1,7 +1,8 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { MovementType, Prisma, PositionStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { PositionsService } from '../positions/positions.service';
+import { normalizeForSearch } from '../common/normalize';
 import { CreateMovementDto } from './dto/create-movement.dto';
 import { ListMovementsDto } from './dto/list-movements.dto';
 import { DeleteMovementDto } from './dto/delete-movement.dto';
@@ -49,28 +50,53 @@ export class MovementsService {
       const productInput = dto.product?.toUpperCase();
       const cidadeInput = dto.cidade?.toUpperCase();
 
-      // dto.vendorId must reference an existing Vendor — resolved here
-      // (inside the transaction) rather than trusted as-is, since it drives
-      // the derived salesInfo string every existing report/search/summary
-      // consumer reads.
-      let vendorName: string | undefined;
+      // dto.vendedorText is free text, possibly several vendor names joined
+      // by "/" (e.g. "MACHADO/GOMES E LIMA"). Resolved to a canonical
+      // vendorId ONLY when it's a single segment that exactly matches an
+      // existing Vendor (case/accent-insensitive) — that's the only case
+      // simple enough to safely combine into the unified Resumo grouping.
+      // Multiple names, or a name that doesn't match the catalog, fall
+      // back to being stored unlinked (vendorId null), exactly like any
+      // other legacy free-text salesInfo — no rejection either way, this
+      // field is always accepted as typed.
+      let checkInVendorId: string | null = null;
+      let checkInVendorLabel = '';
       if (isCheckIn) {
-        const vendor = await tx.vendor.findUnique({ where: { id: dto.vendorId } });
-        if (!vendor) {
-          throw new BadRequestException(`Vendor ${dto.vendorId} not found`);
+        const rawSegments = dto
+          .vendedorText!.split('/')
+          .map((segment) => segment.trim())
+          .filter((segment) => segment.length > 0);
+
+        if (rawSegments.length === 1) {
+          const normalizedSegment = normalizeForSearch(rawSegments[0]);
+          const allVendors = await tx.vendor.findMany();
+          const matchedVendor = allVendors.find(
+            (vendor) => normalizeForSearch(vendor.name) === normalizedSegment,
+          );
+          if (matchedVendor) {
+            checkInVendorId = matchedVendor.id;
+            checkInVendorLabel = matchedVendor.name;
+          }
         }
-        vendorName = vendor.name;
+
+        // No catalog match (or multiple segments) — store exactly what was
+        // typed, uppercased like every other free-text field here.
+        if (!checkInVendorId) {
+          checkInVendorLabel = dto.vendedorText!.toUpperCase();
+        }
       }
 
       // On check-out the request body doesn't carry orderNumber/product/
-      // quantity/vendorId/cidade — they're read from the position's current
-      // state (set at check-in) so the movement still has a full record of
-      // what was checked out.
+      // quantity/vendedorText/cidade — they're read from the position's
+      // current state (set at check-in) so the movement still has a full
+      // record of what was checked out.
       const orderNumber = isCheckIn ? orderNumberInput! : (position.orderNumber ?? 'N/A');
       const product = isCheckIn ? productInput! : (position.product ?? 'N/A');
       const quantity = isCheckIn ? dto.quantity! : (position.quantity ?? '0');
-      const salesInfo = isCheckIn ? `${vendorName}/${cidadeInput}` : (position.salesInfo ?? 'N/A');
-      const vendorId = isCheckIn ? dto.vendorId! : (position.vendorId ?? null);
+      const salesInfo = isCheckIn
+        ? `${checkInVendorLabel}/${cidadeInput}`
+        : (position.salesInfo ?? 'N/A');
+      const vendorId = isCheckIn ? checkInVendorId : (position.vendorId ?? null);
       const cidade = isCheckIn ? cidadeInput! : (position.cidade ?? null);
 
       const movement = await tx.movement.create({
@@ -92,7 +118,7 @@ export class MovementsService {
         orderNumber: isCheckIn ? orderNumberInput! : null,
         product: isCheckIn ? productInput! : null,
         salesInfo: isCheckIn ? salesInfo : null,
-        vendorId: isCheckIn ? dto.vendorId! : null,
+        vendorId: isCheckIn ? checkInVendorId : null,
         cidade: isCheckIn ? cidadeInput! : null,
       });
 

@@ -31,14 +31,18 @@ export class CreateMovementDto {
   @IsNotEmpty()
   product?: string;
 
-  // Must reference an existing Vendor — MovementsService validates this and
-  // rejects with a clear error otherwise. Replaces the old free-text
-  // salesInfo input: the service resolves the vendor and derives
-  // salesInfo as `${vendor.name}/${cidade}` internally.
+  // Raw free text, possibly several vendor names joined by "/" (e.g.
+  // "MACHADO/GOMES E LIMA") — MovementsService parses this and resolves a
+  // canonical vendorId only when it's a single name that exactly matches
+  // the Vendor catalog (case/accent-insensitive); otherwise the position
+  // is stored unlinked (vendorId null), same as any legacy free-text
+  // record. salesInfo is always derived as `${vendedorText}/${cidade}`
+  // (using the canonical catalog name when resolved, the raw text
+  // otherwise) regardless of whether vendorId was resolved.
   @ValidateIf((dto: CreateMovementDto) => dto.type === MovementType.CHECK_IN)
   @IsString()
   @IsNotEmpty()
-  vendorId?: string;
+  vendedorText?: string;
 
   @ValidateIf((dto: CreateMovementDto) => dto.type === MovementType.CHECK_IN)
   @IsString()
