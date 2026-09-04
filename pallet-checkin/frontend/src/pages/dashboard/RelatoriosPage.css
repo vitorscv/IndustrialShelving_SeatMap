@@ -18,6 +18,30 @@
   padding: 2rem;
 }
 
+/* Cards are grouped into named sections (Movimentação / Estoque / Análise)
+   instead of one flat 7-card grid — see RelatoriosPage.tsx for why. The
+   generous margin is what gives the page clear "sections", not just a
+   the title → Resumo atual → cards wall. */
+.relatorios-page__section {
+  margin-bottom: 2.5rem;
+}
+
+.relatorios-page__section:last-child {
+  margin-bottom: 0;
+}
+
+/* Same uppercase/secondary-color/letter-spacing language already used for
+   section headings elsewhere (position-side-panel__section-title,
+   resumo-atual__breakdown-title) — not a new typographic pattern. */
+.relatorios-page__section-title {
+  margin: 0 0 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .relatorios-page__grid {
   display: grid;
   /* auto-fit (not auto-fill) collapses empty tracks — a trailing row with

@@ -126,6 +126,20 @@ export interface ListMovementsParams {
   to?: string;
 }
 
+// Returned by GET /reports/summary — CURRENT state (right now, from
+// Position), not historical like the .xlsx exports elsewhere on the
+// Relatórios page.
+export interface ReportsSummaryBySalesInfo {
+  salesInfo: string;
+  quantity: number;
+  positionCount: number;
+}
+
+export interface ReportsSummary {
+  totalQuantity: number;
+  bySalesInfo: ReportsSummaryBySalesInfo[];
+}
+
 export interface Product {
   id: string;
   name: string;

@@ -3,6 +3,14 @@
   flex-direction: column;
   gap: 1rem;
   height: 100%;
+  /* Grid items default to min-width: auto (their own content's min-content
+     size), which can silently override an equal 1fr share and make one
+     card in a row wider than its siblings if its content happens to need
+     more room — the classic "why aren't my equal-fr grid columns equal"
+     gotcha. This is what actually guarantees width is never
+     content-dependent, regardless of what's typed into a DE/ATÉ field or
+     how a description happens to wrap. */
+  min-width: 0;
   padding: 1.5rem;
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);

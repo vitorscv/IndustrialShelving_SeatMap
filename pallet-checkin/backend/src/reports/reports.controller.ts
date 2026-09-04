@@ -18,6 +18,13 @@ const XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreads
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
+  // Plain JSON, not a file download — powers the "Resumo atual" section at
+  // the top of the Relatórios page, rendered live rather than exported.
+  @Get('summary')
+  getSummary() {
+    return this.reportsService.getSummary();
+  }
+
   @Get('movements')
   async exportMovements(
     @Query() query: ExportMovementsQueryDto,

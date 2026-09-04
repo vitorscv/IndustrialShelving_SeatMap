@@ -11,6 +11,7 @@ import type {
   PaginatedMovements,
   Position,
   Product,
+  ReportsSummary,
   Shelf,
 } from '../types/position';
 
@@ -223,6 +224,14 @@ export function downloadStalePositionsReport(minDays: number, token: string): Pr
     token,
     'relatorio-posicoes-paradas.xlsx',
   );
+}
+
+// Plain JSON, not a file — the only /reports endpoint that isn't a
+// download. Powers the "Resumo atual" section, rendered live.
+export function fetchReportsSummary(token: string): Promise<ReportsSummary> {
+  return request<ReportsSummary>('/reports/summary', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
 // ADMIN only (backend-enforced) — deletes one fictitious/mistaken Movement

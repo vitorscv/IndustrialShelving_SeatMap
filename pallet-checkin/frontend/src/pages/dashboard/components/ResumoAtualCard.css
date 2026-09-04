@@ -1,0 +1,247 @@
+.resumo-atual {
+  display: flex;
+  flex-direction: column;
+  /* Was 1.25rem/1.5rem — this is the page's headline info, bumped to the
+     same generous scale used for other "primary" surfaces in the app
+     (e.g. add-shelf-modal__form's 1.5rem, position-side-panel__list's
+     1.25rem) rather than reading as just another cramped card. */
+  gap: 1.75rem;
+  margin-bottom: 2.5rem;
+  padding: 2rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.resumo-atual__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.resumo-atual__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.resumo-atual__refresh {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.resumo-atual__refresh:hover:not(:disabled) {
+  color: var(--color-text-primary);
+  border-color: var(--color-brand-accent);
+}
+
+.resumo-atual__refresh:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.resumo-atual__refresh-icon--spinning {
+  animation: resumo-atual-spin 0.8s linear infinite;
+}
+
+@keyframes resumo-atual-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== Hero content — full-width, centered. The one number this page
+   leads with. Deliberately NOT a nested box: no border, no background
+   fill of its own — it sits directly on .resumo-atual's own surface, a
+   single unified card rather than a box-within-a-box. Separation from
+   the table below comes from the parent's own `gap` (spacing alone), not
+   a border around this block. ===== */
+.resumo-atual__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  /* No vertical padding of its own — .resumo-atual's own gap (1.75rem)
+     already spaces this from the header above and the table below, so
+     adding more here would just double up that spacing. Horizontal
+     padding only, so centered text never touches the card's side edges
+     on a narrow width. */
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.resumo-atual__hero-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.25rem;
+  color: var(--color-brand-accent);
+  background-color: color-mix(in srgb, var(--color-brand-accent) 18%, transparent);
+  border-radius: 999px;
+}
+
+.resumo-atual__hero-value {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.resumo-atual__hero-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.resumo-atual__breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* One shared grid for the whole table (header row + every data row) is
+   what makes Quantidade/Posições actually line up as columns — each
+   column track auto-sizes to its widest cell across ALL rows, not just
+   its own row. The proportional bar per group spans every column
+   (grid-column: 1 / -1) on the row right below its own name/quantity. */
+.resumo-atual__table {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  column-gap: 1.5rem;
+  row-gap: 0.3rem;
+  align-items: center;
+}
+
+.resumo-atual__table-head {
+  padding-bottom: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.resumo-atual__table-head--right {
+  text-align: right;
+}
+
+.resumo-atual__cell-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding-top: 0.6rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.resumo-atual__cell-qty,
+.resumo-atual__cell-count {
+  padding-top: 0.6rem;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.resumo-atual__cell-qty {
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.resumo-atual__cell-count {
+  color: var(--color-text-secondary);
+}
+
+.resumo-atual__bar-track {
+  grid-column: 1 / -1;
+  /* Was margin-bottom: 0.5rem only, no margin-top — with just the grid's
+     0.3rem row-gap above it, the bar sat close enough under the name text
+     to read as an underline instead of its own data element. Margin-top
+     is what actually separates it from the text; margin-bottom keeps the
+     next row from crowding back in. Also bumped 5px -> 6px, enough to
+     read as a deliberate bar rather than a hairline. */
+  margin-top: 0.4rem;
+  margin-bottom: 0.85rem;
+  height: 6px;
+  background-color: var(--color-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.resumo-atual__bar-fill {
+  height: 100%;
+  background-color: var(--color-brand-accent);
+  border-radius: 999px;
+  transition: width 300ms ease;
+}
+
+.resumo-atual__toggle {
+  align-self: flex-start;
+  padding: 0.3rem 0;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-brand-accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.resumo-atual__toggle:hover {
+  text-decoration: underline;
+}
+
+.resumo-atual__muted {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.resumo-atual__error {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+/* ===== Tablet (≤1024px): same breakpoint as the rest of the dashboard
+   chrome — the hero-above-table layout already stacks naturally (no row
+   to break), just tightens the outer padding a bit. ===== */
+@media (max-width: 1024px) {
+  .resumo-atual {
+    padding: 1.5rem;
+  }
+}
+
+/* ===== Phone (≤640px): the hero number is the one place on this card
+   that was sized for a wide screen — scale it down so it doesn't dominate
+   a narrow viewport. The table's own minmax(0, 1fr) name column already
+   shrinks gracefully (overflow-wrap: anywhere), no extra rule needed. ===== */
+@media (max-width: 640px) {
+  .resumo-atual__hero {
+    padding: 0 1rem;
+  }
+
+  .resumo-atual__hero-value {
+    font-size: 2.25rem;
+  }
+}

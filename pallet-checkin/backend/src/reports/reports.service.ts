@@ -59,6 +59,17 @@ function sanitizeSheetName(title: string): string {
   return title.replace(/[:\\/?*[\]]/g, '-').slice(0, 31) || 'Estante';
 }
 
+export interface ReportsSummaryBySalesInfo {
+  salesInfo: string;
+  quantity: number;
+  positionCount: number;
+}
+
+export interface ReportsSummary {
+  totalQuantity: number;
+  bySalesInfo: ReportsSummaryBySalesInfo[];
+}
+
 @Injectable()
 export class ReportsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -334,5 +345,41 @@ export class ReportsService {
     });
 
     return Buffer.from(await workbook.xlsx.writeBuffer());
+  }
+
+  // CURRENT state, not historical — unlike every export above (which reads
+  // Movement rows over a date range), this reads Position directly: "how
+  // much is on the shelves right now and whose is it", not "what happened
+  // over time". Plain JSON (not an .xlsx buffer) since the frontend renders
+  // it live on the Relatórios page instead of downloading it.
+  async getSummary(): Promise<ReportsSummary> {
+    const occupiedPositions = await this.prisma.position.findMany({
+      where: { status: 'OCCUPIED' },
+      select: { quantity: true, salesInfo: true },
+    });
+
+    let totalQuantity = 0;
+    const bySalesInfoMap = new Map<string, { quantity: number; positionCount: number }>();
+
+    for (const position of occupiedPositions) {
+      // Both are set by MovementsService on every CHECK_IN and only ever
+      // cleared back to null together with FREE on CHECK_OUT — so an
+      // OCCUPIED position always has both, this fallback is defensive only.
+      const quantity = position.quantity !== null ? parseQuantity(position.quantity) : 0;
+      const salesInfo = position.salesInfo ?? 'N/A';
+
+      totalQuantity += quantity;
+
+      const entry = bySalesInfoMap.get(salesInfo) ?? { quantity: 0, positionCount: 0 };
+      entry.quantity += quantity;
+      entry.positionCount += 1;
+      bySalesInfoMap.set(salesInfo, entry);
+    }
+
+    const bySalesInfo = Array.from(bySalesInfoMap.entries())
+      .map(([salesInfo, stats]) => ({ salesInfo, ...stats }))
+      .sort((a, b) => b.quantity - a.quantity);
+
+    return { totalQuantity, bySalesInfo };
   }
 }
