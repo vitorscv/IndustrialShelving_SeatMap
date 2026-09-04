@@ -7,9 +7,12 @@ import { OverviewPage } from './pages/dashboard/OverviewPage';
 import { EstantesPage } from './pages/dashboard/EstantesPage';
 import { MovementsPage } from './pages/dashboard/MovementsPage';
 import { ProdutosPage } from './pages/dashboard/ProdutosPage';
+import { VendedoresPage } from './pages/dashboard/VendedoresPage';
 import { RelatoriosPage } from './pages/dashboard/RelatoriosPage';
+import { RelatorioVendedorPage } from './pages/dashboard/RelatorioVendedorPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import { AdminRoute } from './routes/AdminRoute';
+import { AdminOrVendedorRoute } from './routes/AdminOrVendedorRoute';
 
 function App() {
   const [token, setToken] = useState<string | null>(null);
@@ -55,11 +58,27 @@ function App() {
             }
           />
           <Route
-            path="relatorios"
+            path="vendedores"
             element={
               <AdminRoute>
-                <RelatoriosPage />
+                <VendedoresPage />
               </AdminRoute>
+            }
+          />
+          <Route
+            path="relatorios"
+            element={
+              <AdminOrVendedorRoute>
+                <RelatoriosPage />
+              </AdminOrVendedorRoute>
+            }
+          />
+          <Route
+            path="relatorios/vendedores/:vendorId"
+            element={
+              <AdminOrVendedorRoute>
+                <RelatorioVendedorPage />
+              </AdminOrVendedorRoute>
             }
           />
         </Route>

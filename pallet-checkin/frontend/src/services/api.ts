@@ -2,7 +2,9 @@ import type {
   CreateMovementInput,
   CreateShelfInput,
   CreateShelfResult,
+  EditOccupiedPositionInput,
   ImportProductsResult,
+  ImportVendorsResult,
   ListMovementsParams,
   Movement,
   MovementDeletionLog,
@@ -13,6 +15,8 @@ import type {
   Product,
   ReportsSummary,
   Shelf,
+  Vendor,
+  VendorPositionsReport,
 } from '../types/position';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
@@ -95,6 +99,21 @@ export function createMovement(
   });
 }
 
+// OPERATOR-only (backend-enforced, ADMIN gets 403) — corrects typos or
+// attaches a catalog Vendor to an old free-text record on a currently
+// OCCUPIED position. Creates no Movement and doesn't touch history.
+export function editOccupiedPosition(
+  id: string,
+  input: EditOccupiedPositionInput,
+  token: string,
+): Promise<Position> {
+  return request<Position>(`/positions/${id}/edit-occupied`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(input),
+  });
+}
+
 export function fetchProducts(token: string): Promise<Product[]> {
   return request<Product[]>('/products', {
     headers: { Authorization: `Bearer ${token}` },
@@ -116,6 +135,49 @@ export function importProducts(file: File, token: string): Promise<ImportProduct
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
     body: formData,
+  });
+}
+
+export function fetchVendors(token: string): Promise<Vendor[]> {
+  return request<Vendor[]>('/vendors', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+export function createVendor(name: string, token: string): Promise<Vendor> {
+  return request<Vendor>('/vendors', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ name }),
+  });
+}
+
+export function importVendors(file: File, token: string): Promise<ImportVendorsResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return request<ImportVendorsResult>('/vendors/import', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+}
+
+// Distinct Cidade values collected from past CHECK_IN movements — used as
+// a secondary/priority signal on top of the full IBGE list below (see
+// CidadeAutocomplete). Grows over time; empty for a fresh install until
+// the first check-in through the new form.
+export function fetchCidadeSuggestions(token: string): Promise<string[]> {
+  return request<string[]>('/movements/cidades', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+// The full national municipality list, formatted "Cidade - UF" (e.g.
+// "Feira de Santana - BA") — backend fetches and caches this from IBGE, so
+// this call is cheap even though the list has ~5570 entries.
+export function fetchCities(token: string): Promise<string[]> {
+  return request<string[]>('/cities', {
+    headers: { Authorization: `Bearer ${token}` },
   });
 }
 
@@ -230,6 +292,17 @@ export function downloadStalePositionsReport(minDays: number, token: string): Pr
 // download. Powers the "Resumo atual" section, rendered live.
 export function fetchReportsSummary(token: string): Promise<ReportsSummary> {
   return request<ReportsSummary>('/reports/summary', {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+// Powers the vendor detail page reached by clicking a vendor-grouped
+// Resumo atual row.
+export function fetchVendorPositionsReport(
+  vendorId: string,
+  token: string,
+): Promise<VendorPositionsReport> {
+  return request<VendorPositionsReport>(`/reports/vendors/${vendorId}/positions`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 }

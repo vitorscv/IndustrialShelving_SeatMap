@@ -7,7 +7,7 @@ import {
   downloadOccupancySnapshot,
   downloadTopProductsReport,
 } from '../../services/api';
-import { useAuth } from '../../services/auth';
+import { useAuth, useRole } from '../../services/auth';
 import { DateRangeReportCard } from './components/DateRangeReportCard';
 import { StalePositionsReportCard } from './components/StalePositionsReportCard';
 import { ResumoAtualCard } from './components/ResumoAtualCard';
@@ -50,6 +50,13 @@ function SnapshotReportCard() {
 
 export function RelatoriosPage() {
   const { token } = useAuth();
+  const role = useRole();
+  // VENDEDOR is a strictly read-only role limited to the CURRENT-state
+  // Resumo atual (and its per-vendor detail page) — every card below
+  // downloads a full historical .xlsx export, which the backend already
+  // rejects for this role (ADMIN-only guards), so there's nothing for it
+  // to click here anyway.
+  const isVendedor = role === 'VENDEDOR';
 
   return (
     <div className="relatorios-page">
@@ -66,50 +73,54 @@ export function RelatoriosPage() {
             not as a stray orphan card floating alone in an otherwise-empty
             row — which is what a flat grid did with Picos de movimentação
             before this reorganization. */}
-        <section className="relatorios-page__section">
-          <h2 className="relatorios-page__section-title">Movimentação</h2>
-          <div className="relatorios-page__grid">
-            <DateRangeReportCard
-              title="Relatório de Entradas"
-              description="Todo check-in registrado no período selecionado (ou todo o histórico, se as datas ficarem em branco): posição, pedido/cliente, produto, quantidade e vendedor/cidade."
-              onDownload={(from, to) => downloadMovementsReport('CHECK_IN', from, to, token!)}
-            />
-            <DateRangeReportCard
-              title="Relatório de Saídas"
-              description="Todo check-out registrado no período selecionado (ou todo o histórico, se as datas ficarem em branco), com os mesmos detalhes do relatório de entradas."
-              onDownload={(from, to) => downloadMovementsReport('CHECK_OUT', from, to, token!)}
-            />
-            <DateRangeReportCard
-              title="Picos de movimentação"
-              description="Quantidade de movimentações (entradas e saídas) agrupada por dia da semana e por hora do dia, para identificar os horários de maior atividade."
-              onDownload={(from, to) => downloadActivityPeaksReport(from, to, token!)}
-            />
-          </div>
-        </section>
+        {!isVendedor && (
+          <>
+            <section className="relatorios-page__section">
+              <h2 className="relatorios-page__section-title">Movimentação</h2>
+              <div className="relatorios-page__grid">
+                <DateRangeReportCard
+                  title="Relatório de Entradas"
+                  description="Todo check-in registrado no período selecionado (ou todo o histórico, se as datas ficarem em branco): posição, pedido/cliente, produto, quantidade e vendedor/cidade."
+                  onDownload={(from, to) => downloadMovementsReport('CHECK_IN', from, to, token!)}
+                />
+                <DateRangeReportCard
+                  title="Relatório de Saídas"
+                  description="Todo check-out registrado no período selecionado (ou todo o histórico, se as datas ficarem em branco), com os mesmos detalhes do relatório de entradas."
+                  onDownload={(from, to) => downloadMovementsReport('CHECK_OUT', from, to, token!)}
+                />
+                <DateRangeReportCard
+                  title="Picos de movimentação"
+                  description="Quantidade de movimentações (entradas e saídas) agrupada por dia da semana e por hora do dia, para identificar os horários de maior atividade."
+                  onDownload={(from, to) => downloadActivityPeaksReport(from, to, token!)}
+                />
+              </div>
+            </section>
 
-        <section className="relatorios-page__section">
-          <h2 className="relatorios-page__section-title">Estoque</h2>
-          <div className="relatorios-page__grid">
-            <SnapshotReportCard />
-            <StalePositionsReportCard />
-          </div>
-        </section>
+            <section className="relatorios-page__section">
+              <h2 className="relatorios-page__section-title">Estoque</h2>
+              <div className="relatorios-page__grid">
+                <SnapshotReportCard />
+                <StalePositionsReportCard />
+              </div>
+            </section>
 
-        <section className="relatorios-page__section">
-          <h2 className="relatorios-page__section-title">Análise</h2>
-          <div className="relatorios-page__grid">
-            <DateRangeReportCard
-              title="Produtos mais movimentados"
-              description="Ranking de produtos por quantidade total, considerando apenas check-ins (entradas) para não contar a mesma quantidade duas vezes quando o palete sai depois."
-              onDownload={(from, to) => downloadTopProductsReport(from, to, token!)}
-            />
-            <DateRangeReportCard
-              title="Por vendedor/cidade"
-              description="Total de movimentações e quantidade por vendedor/cidade, também baseado apenas em check-ins pelo mesmo motivo do relatório de produtos."
-              onDownload={(from, to) => downloadBySalespersonReport(from, to, token!)}
-            />
-          </div>
-        </section>
+            <section className="relatorios-page__section">
+              <h2 className="relatorios-page__section-title">Análise</h2>
+              <div className="relatorios-page__grid">
+                <DateRangeReportCard
+                  title="Produtos mais movimentados"
+                  description="Ranking de produtos por quantidade total, considerando apenas check-ins (entradas) para não contar a mesma quantidade duas vezes quando o palete sai depois."
+                  onDownload={(from, to) => downloadTopProductsReport(from, to, token!)}
+                />
+                <DateRangeReportCard
+                  title="Por vendedor/cidade"
+                  description="Total de movimentações e quantidade por vendedor/cidade, também baseado apenas em check-ins pelo mesmo motivo do relatório de produtos."
+                  onDownload={(from, to) => downloadBySalespersonReport(from, to, token!)}
+                />
+              </div>
+            </section>
+          </>
+        )}
       </div>
     </div>
   );

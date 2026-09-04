@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftRight, Eye, History, Package, X } from 'lucide-react';
+import { ArrowLeftRight, Eye, History, Package, Pencil, X } from 'lucide-react';
 import type { Position } from '../../types/position';
 import { fetchMovements } from '../../services/api';
 import { useAuth, useRole } from '../../services/auth';
@@ -20,6 +20,10 @@ interface PositionSidePanelProps {
   // Opens the dashboard's own check-in/check-out modal for this position —
   // the standalone operation page was retired, so this is the only flow.
   onMovimentar: () => void;
+  // Opens the OPERATOR-only "Editar dados" correction form (see
+  // EditOccupiedPositionModal) — fixes typos or attaches a catalog Vendor
+  // to an old free-text record without creating a Movement.
+  onEditarDados: () => void;
 }
 
 const STATUS_LABELS: Record<Position['status'], string> = {
@@ -28,7 +32,12 @@ const STATUS_LABELS: Record<Position['status'], string> = {
   BLOCKED: 'Bloqueada',
 };
 
-export function PositionSidePanel({ selection, onClose, onMovimentar }: PositionSidePanelProps) {
+export function PositionSidePanel({
+  selection,
+  onClose,
+  onMovimentar,
+  onEditarDados,
+}: PositionSidePanelProps) {
   const navigate = useNavigate();
   const { token } = useAuth();
   const role = useRole();
@@ -203,14 +212,33 @@ export function PositionSidePanel({ selection, onClose, onMovimentar }: Position
               Ver produto
             </button>
           )}
-          <button
-            type="button"
-            className="position-side-panel__action"
-            onClick={onMovimentar}
-          >
-            <ArrowLeftRight size={16} aria-hidden="true" />
-            Movimentar
-          </button>
+          {/* VENDEDOR is strictly read-only (Visão Geral + Resumo atual,
+              no way to change any data) — hidden entirely rather than
+              left clickable, same "hide, don't dead-end" rule as above. */}
+          {role !== 'VENDEDOR' && (
+            <button
+              type="button"
+              className="position-side-panel__action"
+              onClick={onMovimentar}
+            >
+              <ArrowLeftRight size={16} aria-hidden="true" />
+              Movimentar
+            </button>
+          )}
+          {/* OPERATOR-only correction tool, deliberately excluded for
+              ADMIN (admin uses other tools for this) and VENDEDOR (strictly
+              read-only) — only meaningful on an occupied position, since
+              there's nothing to edit on a free/blocked one. */}
+          {role === 'OPERATOR' && position.status === 'OCCUPIED' && (
+            <button
+              type="button"
+              className="position-side-panel__action"
+              onClick={onEditarDados}
+            >
+              <Pencil size={16} aria-hidden="true" />
+              Editar dados
+            </button>
+          )}
           {isAdmin && (
             <button
               type="button"

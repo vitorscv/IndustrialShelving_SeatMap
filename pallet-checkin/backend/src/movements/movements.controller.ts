@@ -30,10 +30,24 @@ interface AuthenticatedRequest extends Request {
 export class MovementsController {
   constructor(private readonly movementsService: MovementsService) {}
 
-  // No @Roles() — this IS the check-in/check-out action, both roles need it.
+  // This IS the check-in/check-out action — ADMIN and OPERATOR only.
+  // VENDEDOR is a strictly read-only role (Visão Geral + Resumo atual) and
+  // must never be able to change any data.
+  @Roles('ADMIN', 'OPERATOR')
+  @UseGuards(RolesGuard)
   @Post()
   create(@Body() dto: CreateMovementDto) {
     return this.movementsService.create(dto);
+  }
+
+  // Feeds the check-in Cidade autocomplete — ADMIN and OPERATOR only, same
+  // reasoning as create() above: VENDEDOR never checks anything in, so it
+  // has no use for this and shouldn't be able to reach it either.
+  @Roles('ADMIN', 'OPERATOR')
+  @UseGuards(RolesGuard)
+  @Get('cidades')
+  findAllCidades() {
+    return this.movementsService.findAllCidades();
   }
 
   // Movement history — ADMIN only, an operator doesn't need it for their

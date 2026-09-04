@@ -25,6 +25,7 @@ enum MovementType {
 enum Role {
   ADMIN
   OPERATOR
+  VENDEDOR
 }
 
 model Shelf {
@@ -51,6 +52,13 @@ model Position {
   orderNumber String?
   product     String?
   salesInfo   String?
+  // Nullable and populated only going forward (see Vendor below) —
+  // historical positions/movements keep salesInfo as their only record of
+  // vendor/city, with vendorId/cidade left null. Cleared back to null on
+  // CHECK_OUT, same as product/orderNumber/salesInfo above.
+  vendorId    String?
+  vendor      Vendor?        @relation(fields: [vendorId], references: [id])
+  cidade      String?
   movements   Movement[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
@@ -68,6 +76,15 @@ model Movement {
   orderNumber  String
   product      String
   salesInfo    String
+  // Nullable: only new check-ins made through the Vendedor/Cidade form
+  // populate these (see Vendor below) — salesInfo remains the single
+  // field every existing report/search/summary consumer reads, derived
+  // from vendor.name + cidade at write time. CHECK_OUT copies whatever
+  // the Position currently holds (possibly still null, for positions
+  // checked in before this feature existed).
+  vendorId     String?
+  vendor       Vendor?      @relation(fields: [vendorId], references: [id])
+  cidade       String?
   timestamp    DateTime     @default(now())
 }
 
@@ -113,4 +130,20 @@ model Product {
   id        String   @id @default(uuid())
   name      String
   createdAt DateTime @default(now())
+}
+
+// A real catalog (unlike Product's suggestion-only free text): CHECK_IN
+// requires vendorId to reference an existing Vendor, preventing typos like
+// "Junihor" vs "Junior" from ever reaching salesInfo. @unique on `name`
+// (uppercase-normalized before every write, same as Product) backstops the
+// case-insensitive duplicate check already done at the service layer.
+// salesInfo is still derived from vendor.name + Movement/Position.cidade
+// and stored exactly as before, so existing consumers (reports, search,
+// PositionSidePanel) keep reading it unchanged.
+model Vendor {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  movements Movement[]
+  positions Position[]
 }

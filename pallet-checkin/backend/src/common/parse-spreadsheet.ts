@@ -2,10 +2,11 @@ import { BadRequestException } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import { parse as parseCsvSync } from 'csv-parse/sync';
 
-// The first column is the product name; the first row is always treated as
-// a header and skipped — documented convention (simpler and more
-// predictable than trying to heuristically detect whether row 1 "looks
-// like" a header).
+// Shared by Products and Vendors catalog imports. The first column holds
+// the value being imported (product or vendor name); the first row is
+// always treated as a header and skipped — documented convention (simpler
+// and more predictable than trying to heuristically detect whether row 1
+// "looks like" a header).
 function isCsv(file: Express.Multer.File): boolean {
   return file.originalname.toLowerCase().endsWith('.csv') || file.mimetype === 'text/csv';
 }
@@ -70,10 +71,11 @@ function parseCsv(file: Express.Multer.File): string[] {
   return records.slice(1).map((row) => row[0] ?? '');
 }
 
-// Returns the raw first-column values, one per non-header row — the
-// caller (ProductsService) is responsible for trimming, deduplicating and
-// filtering blanks, exactly the same way regardless of source format.
-export async function parseProductNames(file: Express.Multer.File): Promise<string[]> {
+// Returns the raw first-column values, one per non-header row — the caller
+// (ProductsService/VendorsService) is responsible for trimming,
+// deduplicating and filtering blanks, exactly the same way regardless of
+// source format.
+export async function parseFirstColumnValues(file: Express.Multer.File): Promise<string[]> {
   if (isCsv(file)) return parseCsv(file);
   if (isXlsx(file)) return parseXlsx(file);
   throw new BadRequestException('Only .xlsx or .csv files are supported');

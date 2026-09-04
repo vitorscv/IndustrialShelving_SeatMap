@@ -1,9 +1,10 @@
-// Bootstraps the very first admin and operator users. Run manually, once:
+// Bootstraps the very first admin, operator, and vendedor users. Run
+// manually, once:
 //   npm run prisma:seed-admin
-// Reads ADMIN_USERNAME/ADMIN_PASSWORD and OPERATOR_USERNAME/OPERATOR_PASSWORD
-// from .env — never hardcode real credentials here. Additional users are
-// created afterwards through the authenticated POST /auth/users endpoint,
-// not through this script.
+// Reads ADMIN_USERNAME/ADMIN_PASSWORD, OPERATOR_USERNAME/OPERATOR_PASSWORD,
+// and VENDOR_USERNAME/VENDOR_PASSWORD from .env — never hardcode real
+// credentials here. Additional users are created afterwards through the
+// authenticated POST /auth/users endpoint, not through this script.
 // Kept separate from seed.ts (the warehouse layout seeder, which is not
 // idempotent and must never be re-run against a populated database).
 import { PrismaClient, Role } from '@prisma/client';
@@ -17,8 +18,17 @@ async function bootstrapUser(
   password: string | undefined,
   role: Role,
   envVarNames: string,
+  // VENDEDOR is optional — a fresh install may not need a shared vendor
+  // login on day one, so missing env vars just skip it (logged clearly)
+  // instead of failing the whole script the way a missing ADMIN/OPERATOR
+  // (both required for the app to be usable at all) still does.
+  options: { optional?: boolean } = {},
 ) {
   if (!username || !password) {
+    if (options.optional) {
+      console.log(`Skipping ${role} user — set ${envVarNames} in .env to create one.`);
+      return;
+    }
     throw new Error(`Set ${envVarNames} in .env before running the seed script.`);
   }
   if (password.length < 8) {
@@ -52,6 +62,14 @@ async function main() {
       process.env.OPERATOR_PASSWORD,
       'OPERATOR',
       'OPERATOR_USERNAME and OPERATOR_PASSWORD',
+    );
+    await bootstrapUser(
+      prisma,
+      process.env.VENDOR_USERNAME,
+      process.env.VENDOR_PASSWORD,
+      'VENDEDOR',
+      'VENDOR_USERNAME and VENDOR_PASSWORD',
+      { optional: true },
     );
   } finally {
     await prisma.$disconnect();

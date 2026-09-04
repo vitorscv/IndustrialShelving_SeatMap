@@ -1,0 +1,153 @@
+.vendedores-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.vendedores-page__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.vendedores-page__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.vendedores-page__add-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.65rem 1.1rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.vendedores-page__add-button:hover {
+  border-color: var(--color-brand-accent);
+}
+
+.vendedores-page__import-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.65rem 1.1rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: var(--color-brand-accent);
+  color: var(--color-on-accent);
+}
+
+.vendedores-page__import-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.vendedores-page__file-input {
+  display: none;
+}
+
+.vendedores-page__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 2rem;
+}
+
+.vendedores-page__import-summary {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background-color: color-mix(in srgb, var(--color-success) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-success) 45%, transparent);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.vendedores-page__muted {
+  color: var(--color-text-secondary);
+}
+
+.vendedores-page__error {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+.vendedores-page__table-wrap {
+  overflow-x: auto;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.vendedores-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.vendedores-page__table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.vendedores-page__table td {
+  padding: 0.7rem 1rem;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.vendedores-page__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.vendedores-page__table tbody tr:hover td {
+  background-color: var(--color-bg);
+}
+
+.vendedores-page__empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 2rem !important;
+}
+
+/* Title + two non-shrinking action buttons in one unbreakable row has no
+   safety net today — wrap onto a second line instead of squeezing/
+   overflowing once the sidebar (tablet) or outer page width (phone)
+   leaves little room. */
+@media (max-width: 640px) {
+  .vendedores-page__header {
+    flex-wrap: wrap;
+    padding: 1rem 1.25rem;
+  }
+}

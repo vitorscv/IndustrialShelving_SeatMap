@@ -12,32 +12,33 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { ProductsService } from './products.service';
+import { VendorsService } from './vendors.service';
 import { parseFirstColumnValues } from '../common/parse-spreadsheet';
-import { CreateProductDto } from './dto/create-product.dto';
+import { CreateVendorDto } from './dto/create-vendor.dto';
 
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB — enough for a large product catalog, small enough to avoid abuse.
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB — enough for a large vendor catalog, small enough to avoid abuse.
 
 @UseGuards(JwtAuthGuard)
-@Controller('products')
-export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+@Controller('vendors')
+export class VendorsController {
+  constructor(private readonly vendorsService: VendorsService) {}
 
-  // ADMIN and OPERATOR only — needed by the check-in Produto autocomplete.
-  // VENDEDOR (strictly read-only, no check-in capability) has no use for
-  // this catalog and shouldn't be able to reach it either.
+  // ADMIN and OPERATOR only — needed by the check-in Vendedor dropdown.
+  // The VENDEDOR role (a strictly read-only viewer of Visão Geral/Resumo
+  // atual) never checks anything in, so it has no use for this catalog
+  // and shouldn't be able to reach it either.
   @Roles('ADMIN', 'OPERATOR')
   @UseGuards(RolesGuard)
   @Get()
   findAll() {
-    return this.productsService.findAll();
+    return this.vendorsService.findAll();
   }
 
   @Roles('ADMIN')
   @UseGuards(RolesGuard)
   @Post()
-  create(@Body() dto: CreateProductDto) {
-    return this.productsService.create(dto.name);
+  create(@Body() dto: CreateVendorDto) {
+    return this.vendorsService.create(dto.name);
   }
 
   @Roles('ADMIN')
@@ -58,6 +59,6 @@ export class ProductsController {
       throw new BadRequestException('No file uploaded');
     }
     const names = await parseFirstColumnValues(file);
-    return this.productsService.importNames(names);
+    return this.vendorsService.importNames(names);
   }
 }

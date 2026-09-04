@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
-import { Boxes, RefreshCw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Boxes, ChevronRight, RefreshCw } from 'lucide-react';
 import { fetchReportsSummary } from '../../../services/api';
 import { useAuth } from '../../../services/auth';
 import type { ReportsSummary } from '../../../types/position';
@@ -20,6 +21,7 @@ function formatNumber(value: number): string {
 // page nobody's actively watching.
 export function ResumoAtualCard() {
   const { token } = useAuth();
+  const navigate = useNavigate();
   const [summary, setSummary] = useState<ReportsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,9 +95,14 @@ export function ResumoAtualCard() {
             {visibleGroups.length > 0 && (
               // One shared CSS Grid (not one grid per row) is what makes the
               // Quantidade/Posições columns actually line up — every row's
-              // cells share the same 3 column tracks, auto-sized to the
-              // widest value in each, instead of each row independently
-              // sizing its own "auto" columns.
+              // cells share the same 4 column tracks (name, quantidade,
+              // posições, chevron), auto-sized to the widest value in each,
+              // instead of each row independently sizing its own "auto"
+              // columns. Every row emits all 4 items (a non-clickable row's
+              // chevron slot is an empty spacer) — grid auto-placement has
+              // no notion of "rows" beyond the fixed column count, so a
+              // row emitting fewer items would throw every later row's
+              // alignment off by one column.
               <div className="resumo-atual__table" role="table">
                 <span className="resumo-atual__table-head" role="columnheader">
                   Vendedor/Cidade
@@ -112,21 +119,66 @@ export function ResumoAtualCard() {
                 >
                   Posições
                 </span>
+                <span className="resumo-atual__table-head" role="columnheader" aria-hidden="true" />
 
                 {visibleGroups.map((group) => {
                   const total = summary?.totalQuantity ?? 0;
                   const sharePct = total > 0 ? (group.quantity / total) * 100 : 0;
+                  const isClickable = group.vendorId !== null;
+
+                  function openVendorDetail() {
+                    navigate(`/dashboard/relatorios/vendedores/${group.vendorId}`);
+                  }
+
+                  // Every cell in a clickable row shares the same
+                  // click/keyboard handling — a vendor row has no single
+                  // wrapping DOM element (see the column-alignment note
+                  // above), so each of its cells is independently
+                  // clickable, together reading as one clickable row.
+                  const clickableCellProps = isClickable
+                    ? {
+                        role: 'button' as const,
+                        tabIndex: 0,
+                        onClick: openVendorDetail,
+                        onKeyDown: (event: React.KeyboardEvent) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            openVendorDetail();
+                          }
+                        },
+                      }
+                    : {};
+
                   return (
-                    <Fragment key={group.salesInfo}>
-                      <span className="resumo-atual__cell-name" role="cell">
-                        {group.salesInfo}
+                    <Fragment key={group.key}>
+                      <span
+                        className={`resumo-atual__cell-name${isClickable ? ' resumo-atual__cell--clickable' : ''}`}
+                        role={isClickable ? undefined : 'cell'}
+                        {...clickableCellProps}
+                      >
+                        {group.label}
                       </span>
-                      <span className="resumo-atual__cell-qty" role="cell">
+                      <span
+                        className={`resumo-atual__cell-qty${isClickable ? ' resumo-atual__cell--clickable' : ''}`}
+                        role={isClickable ? undefined : 'cell'}
+                        {...clickableCellProps}
+                      >
                         {formatNumber(group.quantity)}
                       </span>
-                      <span className="resumo-atual__cell-count" role="cell">
+                      <span
+                        className={`resumo-atual__cell-count${isClickable ? ' resumo-atual__cell--clickable' : ''}`}
+                        role={isClickable ? undefined : 'cell'}
+                        {...clickableCellProps}
+                      >
                         {group.positionCount}
                       </span>
+                      {isClickable ? (
+                        <span className="resumo-atual__cell-chevron resumo-atual__cell--clickable" {...clickableCellProps}>
+                          <ChevronRight size={16} aria-hidden="true" />
+                        </span>
+                      ) : (
+                        <span aria-hidden="true" />
+                      )}
                       <div
                         className="resumo-atual__bar-track"
                         role="presentation"

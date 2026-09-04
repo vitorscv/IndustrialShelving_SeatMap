@@ -9,27 +9,45 @@ import {
   Layers,
   LogOut,
   Menu,
+  Users,
   X,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth, useRole } from '../../services/auth';
+import type { Role } from '../../services/auth';
 import './Sidebar.css';
 
-// adminOnly items are hidden entirely for OPERATOR — not just visually
-// de-emphasized — since an operator's one job (check-in/check-out on the
-// seat map) only ever needs Visão Geral.
-const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Visão Geral', icon: LayoutGrid, end: true, adminOnly: false },
-  { to: '/dashboard/estantes', label: 'Estantes', icon: Layers, end: false, adminOnly: true },
+// `roles` lists exactly who sees this item — hidden entirely for anyone
+// else, not just visually de-emphasized. Omitted means every role sees it
+// (currently just Visão Geral: an operator's one job is check-in/check-out
+// on the seat map, and VENDEDOR's is viewing it read-only — both need it).
+const NAV_ITEMS: Array<{
+  to: string;
+  label: string;
+  icon: typeof LayoutGrid;
+  end: boolean;
+  roles?: Role[];
+}> = [
+  { to: '/dashboard', label: 'Visão Geral', icon: LayoutGrid, end: true },
+  { to: '/dashboard/estantes', label: 'Estantes', icon: Layers, end: false, roles: ['ADMIN'] },
   {
     to: '/dashboard/movimentacoes',
     label: 'Movimentações',
     icon: ArrowLeftRight,
     end: false,
-    adminOnly: true,
+    roles: ['ADMIN'],
   },
-  { to: '/dashboard/produtos', label: 'Produtos', icon: Box, end: false, adminOnly: true },
-  { to: '/dashboard/relatorios', label: 'Relatórios', icon: FileText, end: false, adminOnly: true },
+  { to: '/dashboard/produtos', label: 'Produtos', icon: Box, end: false, roles: ['ADMIN'] },
+  { to: '/dashboard/vendedores', label: 'Vendedores', icon: Users, end: false, roles: ['ADMIN'] },
+  {
+    to: '/dashboard/relatorios',
+    label: 'Relatórios',
+    icon: FileText,
+    end: false,
+    // VENDEDOR sees a stripped-down Relatórios (Resumo atual only, see
+    // RelatoriosPage) — OPERATOR still has no reason to be here at all.
+    roles: ['ADMIN', 'VENDEDOR'],
+  },
 ];
 
 // UI preference only (not sensitive) — fine to persist directly in
@@ -64,7 +82,7 @@ export function Sidebar() {
   // Off-canvas drawer state at phone width — independent of `collapsed`
   // (which only ever means "icon rail vs. full width" at desktop/tablet).
   const [mobileOpen, setMobileOpen] = useState(false);
-  const visibleNavItems = NAV_ITEMS.filter((item) => !item.adminOnly || role === 'ADMIN');
+  const visibleNavItems = NAV_ITEMS.filter((item) => !item.roles || (role && item.roles.includes(role)));
 
   function handleToggleCollapsed() {
     setCollapsed((value) => {

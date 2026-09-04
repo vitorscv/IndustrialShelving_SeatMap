@@ -2,29 +2,31 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import type { MovementType, Position } from '../../types/position';
 import { ProductAutocomplete } from '../ProductAutocomplete/ProductAutocomplete';
+import { CidadeAutocomplete } from '../CidadeAutocomplete/CidadeAutocomplete';
+import { useVendors } from '../../hooks/useVendors';
 import { isQuantityBeingTyped, isQuantityValid } from '../../utils/quantity';
 import './CheckinForm.css';
 
 export interface CheckinFormSubmitInput {
   // Only meaningful (and only sent) on the CHECK_IN path — CHECK_OUT reads
-  // quantity/orderNumber/product from the Position server-side instead.
+  // quantity/orderNumber/product/vendorId/cidade from the Position
+  // server-side instead.
   // Free text, not a plain number: one or more positive integers separated
   // by "/" (e.g. "2500/3000" for two orders combined on one pallet).
   quantity?: string;
   orderNumber?: string;
   product?: string;
-  // Always present, but only ever user-edited on CHECK_IN — on CHECK_OUT
-  // this just echoes position.salesInfo back (read-only in the UI), and
-  // the backend ignores it anyway, reading the position's own stored
-  // value instead (same pattern as quantity/orderNumber/product above).
-  salesInfo: string;
+  vendorId?: string;
+  cidade?: string;
 }
 
 interface CheckinFormProps {
   position: Position;
   shelfTitle: string;
-  salesInfo: string;
-  onSalesInfoChange: (value: string) => void;
+  vendorId: string;
+  onVendorIdChange: (value: string) => void;
+  cidade: string;
+  onCidadeChange: (value: string) => void;
   onSubmit: (input: CheckinFormSubmitInput) => Promise<void>;
   submitting: boolean;
 }
@@ -38,11 +40,14 @@ function movementTypeFor(position: Position): MovementType {
 export function CheckinForm({
   position,
   shelfTitle,
-  salesInfo,
-  onSalesInfoChange,
+  vendorId,
+  onVendorIdChange,
+  cidade,
+  onCidadeChange,
   onSubmit,
   submitting,
 }: CheckinFormProps) {
+  const { vendors } = useVendors();
   const [orderNumber, setOrderNumber] = useState('');
   const [product, setProduct] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -63,8 +68,8 @@ export function CheckinForm({
     }
 
     const input: CheckinFormSubmitInput = isCheckIn
-      ? { quantity: quantity.trim(), orderNumber, product, salesInfo }
-      : { salesInfo: position.salesInfo ?? '' };
+      ? { quantity: quantity.trim(), orderNumber, product, vendorId, cidade }
+      : {};
     try {
       await onSubmit(input);
       setOrderNumber('');
@@ -139,15 +144,26 @@ export function CheckinForm({
       </fieldset>
 
       {isCheckIn ? (
-        <label>
-          Vendedor/Cidade
-          <input
-            type="text"
-            value={salesInfo}
-            onChange={(e) => onSalesInfoChange(e.target.value.toUpperCase())}
-            required
-          />
-        </label>
+        <>
+          <label>
+            Vendedor
+            <select value={vendorId} onChange={(e) => onVendorIdChange(e.target.value)} required>
+              <option value="" disabled>
+                Selecione um vendedor
+              </option>
+              {vendors.map((vendor) => (
+                <option key={vendor.id} value={vendor.id}>
+                  {vendor.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Cidade
+            <CidadeAutocomplete value={cidade} onChange={onCidadeChange} required />
+          </label>
+        </>
       ) : (
         <p className="checkin-form__info">
           Vendedor/Cidade: <strong>{position.salesInfo}</strong>

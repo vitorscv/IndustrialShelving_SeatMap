@@ -31,8 +31,17 @@ export class CreateMovementDto {
   @IsNotEmpty()
   product?: string;
 
+  // Must reference an existing Vendor — MovementsService validates this and
+  // rejects with a clear error otherwise. Replaces the old free-text
+  // salesInfo input: the service resolves the vendor and derives
+  // salesInfo as `${vendor.name}/${cidade}` internally.
   @ValidateIf((dto: CreateMovementDto) => dto.type === MovementType.CHECK_IN)
   @IsString()
   @IsNotEmpty()
-  salesInfo?: string;
+  vendorId?: string;
+
+  @ValidateIf((dto: CreateMovementDto) => dto.type === MovementType.CHECK_IN)
+  @IsString()
+  @IsNotEmpty()
+  cidade?: string;
 }

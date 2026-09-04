@@ -7,6 +7,8 @@ import { PositionsModule } from './positions/positions.module';
 import { MovementsModule } from './movements/movements.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
+import { VendorsModule } from './vendors/vendors.module';
+import { CitiesModule } from './cities/cities.module';
 import { ReportsModule } from './reports/reports.module';
 import { HealthController } from './health/health.controller';
 
@@ -22,6 +24,8 @@ import { HealthController } from './health/health.controller';
     MovementsModule,
     AuthModule,
     ProductsModule,
+    VendorsModule,
+    CitiesModule,
     ReportsModule,
   ],
   controllers: [HealthController],

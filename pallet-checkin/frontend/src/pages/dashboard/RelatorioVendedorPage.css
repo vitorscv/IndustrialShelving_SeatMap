@@ -1,0 +1,241 @@
+.relatorio-vendedor-page__header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.relatorio-vendedor-page__back {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.relatorio-vendedor-page__back:hover {
+  color: var(--color-brand-accent);
+}
+
+.relatorio-vendedor-page__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+.relatorio-vendedor-page__stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.relatorio-vendedor-page__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.relatorio-vendedor-page__stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.relatorio-vendedor-page__stat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.relatorio-vendedor-page__content {
+  padding: 1.5rem 2rem 2rem;
+}
+
+/* Same icon-inside-input pattern already established by
+   PositionSearchBar — a small, deliberate duplication (this page's
+   dataset is a plain client-side filter, not the search-suggestions
+   dropdown PositionSearchBar itself needs) rather than importing an
+   unrelated component's stylesheet. */
+.relatorio-vendedor-page__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.relatorio-vendedor-page__search-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+.relatorio-vendedor-page__search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  transition: border-color 0.15s ease;
+}
+
+.relatorio-vendedor-page__search-input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.relatorio-vendedor-page__search-input:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+}
+
+.relatorio-vendedor-page__muted {
+  color: var(--color-text-secondary);
+}
+
+.relatorio-vendedor-page__error {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+/* Stacked cards, not a table — the phone-width target this page is built
+   for has no room for a wide table without horizontal scroll. A single
+   column at every width up to desktop, where auto-fill lets it settle
+   into two columns once there's room, same growth pattern already used
+   by relatorios-page__grid rather than a new breakpoint rule. */
+.relatorio-vendedor-page__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.relatorio-vendedor-page__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.relatorio-vendedor-page__card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.relatorio-vendedor-page__card-code {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.relatorio-vendedor-page__card-qty {
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-brand-accent);
+  white-space: nowrap;
+}
+
+.relatorio-vendedor-page__card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.relatorio-vendedor-page__card-details > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.relatorio-vendedor-page__card-details dt {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.relatorio-vendedor-page__card-details dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+  font-size: 0.88rem;
+  color: var(--color-text-primary);
+}
+
+/* ===== Tablet (≤1024px): same breakpoint as the rest of the dashboard
+   chrome. ===== */
+@media (max-width: 1024px) {
+  .relatorio-vendedor-page__header {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .relatorio-vendedor-page__content {
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+}
+
+/* ===== Phone (≤640px), the PRIMARY target for this page — sellers check
+   this on their own phone. Header stats shrink slightly and the card list
+   collapses to its natural single column (auto-fill already does this on
+   its own once the viewport is narrower than two 320px tracks plus gap,
+   no extra rule needed there). ===== */
+@media (max-width: 640px) {
+  .relatorio-vendedor-page__header {
+    padding: 1rem 1.25rem;
+  }
+
+  .relatorio-vendedor-page__title {
+    font-size: 1.25rem;
+  }
+
+  .relatorio-vendedor-page__stat-value {
+    font-size: 1.2rem;
+  }
+
+  .relatorio-vendedor-page__content {
+    padding: 1rem 1.25rem 1.5rem;
+  }
+
+  .relatorio-vendedor-page__card-details > div {
+    /* Full-width label above value instead of side-by-side — at phone
+       width, "Pedido/Cliente" plus a long order number squeezed onto one
+       line is exactly the kind of cramped baseline-aligned row that
+       forced text to shrink or wrap awkwardly; stacking reads cleanly
+       instead. */
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .relatorio-vendedor-page__card-details dd {
+    text-align: left;
+  }
+}

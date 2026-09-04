@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import { MovementType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -59,15 +59,43 @@ function sanitizeSheetName(title: string): string {
   return title.replace(/[:\\/?*[\]]/g, '-').slice(0, 31) || 'Estante';
 }
 
-export interface ReportsSummaryBySalesInfo {
-  salesInfo: string;
+// `key`/`vendorId` drive frontend behavior (a row with vendorId set is
+// clickable, navigating to the vendor detail page); `label` is always
+// what's actually displayed. For a vendor-linked position, key=vendorId
+// and label=vendor.name (so all of a vendor's cities combine into one
+// row); for an old unlinked record, key=label=the raw salesInfo string,
+// same grouping as before this feature existed.
+export interface ReportsSummaryRow {
+  key: string;
+  label: string;
   quantity: number;
   positionCount: number;
+  vendorId: string | null;
 }
 
 export interface ReportsSummary {
   totalQuantity: number;
-  bySalesInfo: ReportsSummaryBySalesInfo[];
+  bySalesInfo: ReportsSummaryRow[];
+}
+
+export interface VendorPositionDetail {
+  positionId: string;
+  shelfTitle: string;
+  level: string;
+  number: number;
+  orderNumber: string | null;
+  product: string | null;
+  quantity: string | null;
+  cidade: string | null;
+  salesInfo: string | null;
+}
+
+export interface VendorPositionsReport {
+  vendorId: string;
+  vendorName: string;
+  totalQuantity: number;
+  positionCount: number;
+  positions: VendorPositionDetail[];
 }
 
 @Injectable()
@@ -352,34 +380,94 @@ export class ReportsService {
   // much is on the shelves right now and whose is it", not "what happened
   // over time". Plain JSON (not an .xlsx buffer) since the frontend renders
   // it live on the Relatórios page instead of downloading it.
+  //
+  // Grouping: a position with vendorId set groups under that vendor's
+  // canonical identity (key = vendorId), combining every city it's sold
+  // into under one row — e.g. a vendor with pallets in Feira de Santana
+  // AND Itatim shows as one "JUNIOR" row with both summed together. A
+  // position with no vendorId (an old record predating the Vendedores
+  // catalog, or never individually re-linked via "Editar dados") keeps
+  // the original behavior: grouped by its raw salesInfo string, same as
+  // before this feature existed — including "N/A" as its own group.
   async getSummary(): Promise<ReportsSummary> {
     const occupiedPositions = await this.prisma.position.findMany({
       where: { status: 'OCCUPIED' },
-      select: { quantity: true, salesInfo: true },
+      select: { quantity: true, salesInfo: true, vendorId: true, vendor: { select: { name: true } } },
     });
 
     let totalQuantity = 0;
-    const bySalesInfoMap = new Map<string, { quantity: number; positionCount: number }>();
+    const byKeyMap = new Map<
+      string,
+      { label: string; quantity: number; positionCount: number; vendorId: string | null }
+    >();
 
     for (const position of occupiedPositions) {
-      // Both are set by MovementsService on every CHECK_IN and only ever
-      // cleared back to null together with FREE on CHECK_OUT — so an
-      // OCCUPIED position always has both, this fallback is defensive only.
+      // Quantity/salesInfo are set by MovementsService on every CHECK_IN
+      // and only ever cleared back to null together with FREE on
+      // CHECK_OUT — so an OCCUPIED position always has both, this
+      // fallback is defensive only.
       const quantity = position.quantity !== null ? parseQuantity(position.quantity) : 0;
-      const salesInfo = position.salesInfo ?? 'N/A';
-
       totalQuantity += quantity;
 
-      const entry = bySalesInfoMap.get(salesInfo) ?? { quantity: 0, positionCount: 0 };
+      const key = position.vendorId ?? (position.salesInfo ?? 'N/A');
+      const label = position.vendorId ? (position.vendor?.name ?? 'N/A') : (position.salesInfo ?? 'N/A');
+
+      const entry = byKeyMap.get(key) ?? {
+        label,
+        quantity: 0,
+        positionCount: 0,
+        vendorId: position.vendorId,
+      };
       entry.quantity += quantity;
       entry.positionCount += 1;
-      bySalesInfoMap.set(salesInfo, entry);
+      byKeyMap.set(key, entry);
     }
 
-    const bySalesInfo = Array.from(bySalesInfoMap.entries())
-      .map(([salesInfo, stats]) => ({ salesInfo, ...stats }))
+    const bySalesInfo = Array.from(byKeyMap.entries())
+      .map(([key, stats]) => ({ key, ...stats }))
       .sort((a, b) => b.quantity - a.quantity);
 
     return { totalQuantity, bySalesInfo };
+  }
+
+  // Powers the vendor detail page (clicking a vendor-grouped Resumo atual
+  // row) — every CURRENTLY OCCUPIED position linked to this vendor, across
+  // all cities, plus the same totals the summary row already showed (so
+  // the detail page's header matches exactly what was clicked).
+  async getVendorPositions(vendorId: string): Promise<VendorPositionsReport> {
+    const vendor = await this.prisma.vendor.findUnique({ where: { id: vendorId } });
+    if (!vendor) {
+      throw new NotFoundException(`Vendor ${vendorId} not found`);
+    }
+
+    const positions = await this.prisma.position.findMany({
+      where: { status: 'OCCUPIED', vendorId },
+      include: { shelf: true },
+      orderBy: [{ shelf: { title: 'asc' } }, { level: 'asc' }, { number: 'asc' }],
+    });
+
+    let totalQuantity = 0;
+    const positionRows: VendorPositionDetail[] = positions.map((position) => {
+      totalQuantity += position.quantity !== null ? parseQuantity(position.quantity) : 0;
+      return {
+        positionId: position.id,
+        shelfTitle: position.shelf.title,
+        level: position.level,
+        number: position.number,
+        orderNumber: position.orderNumber,
+        product: position.product,
+        quantity: position.quantity,
+        cidade: position.cidade,
+        salesInfo: position.salesInfo,
+      };
+    });
+
+    return {
+      vendorId: vendor.id,
+      vendorName: vendor.name,
+      totalQuantity,
+      positionCount: positionRows.length,
+      positions: positionRows,
+    };
   }
 }

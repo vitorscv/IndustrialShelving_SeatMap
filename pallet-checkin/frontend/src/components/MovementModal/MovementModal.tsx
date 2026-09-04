@@ -15,8 +15,10 @@ export interface MovementSelection {
 
 interface MovementModalProps {
   selection: MovementSelection | null;
-  salesInfo: string;
-  onSalesInfoChange: (value: string) => void;
+  vendorId: string;
+  onVendorIdChange: (value: string) => void;
+  cidade: string;
+  onCidadeChange: (value: string) => void;
   onClose: () => void;
   // Lets the dashboard refresh its polled data immediately on success,
   // instead of waiting for the next scheduled poll tick.
@@ -33,8 +35,10 @@ interface MovementModalProps {
 // with no extra indirection.
 export function MovementModal({
   selection,
-  salesInfo,
-  onSalesInfoChange,
+  vendorId,
+  onVendorIdChange,
+  cidade,
+  onCidadeChange,
   onClose,
   onSuccess,
 }: MovementModalProps) {
@@ -89,7 +93,8 @@ export function MovementModal({
           quantity: input.quantity,
           orderNumber: input.orderNumber,
           product: input.product,
-          salesInfo: input.salesInfo,
+          vendorId: input.vendorId,
+          cidade: input.cidade,
         },
         token!,
       );
@@ -127,8 +132,10 @@ export function MovementModal({
         <CheckinForm
           position={position}
           shelfTitle={shelfTitle}
-          salesInfo={salesInfo}
-          onSalesInfoChange={onSalesInfoChange}
+          vendorId={vendorId}
+          onVendorIdChange={onVendorIdChange}
+          cidade={cidade}
+          onCidadeChange={onCidadeChange}
           onSubmit={handleSubmit}
           submitting={submitting}
         />

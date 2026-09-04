@@ -6,6 +6,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { getJwtSecret } from './jwt-secret';
+import { LoginThrottleService } from './login-throttle.service';
+import { LoginThrottleInterceptor } from './login-throttle.interceptor';
 
 @Module({
   imports: [
@@ -19,6 +21,6 @@ import { getJwtSecret } from './jwt-secret';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, LoginThrottleService, LoginThrottleInterceptor],
 })
 export class AuthModule {}

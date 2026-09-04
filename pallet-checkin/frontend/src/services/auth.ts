@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
-export type Role = 'ADMIN' | 'OPERATOR';
+export type Role = 'ADMIN' | 'OPERATOR' | 'VENDEDOR';
 
 interface JwtPayload {
   sub: string;

@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { LayoutGrid, List } from 'lucide-react';
 import { usePositionsPolling } from '../../hooks/usePositionsPolling';
 import { fetchOccupancySummary } from '../../services/api';
-import { useAuth } from '../../services/auth';
+import { useAuth, useRole } from '../../services/auth';
 import type { OccupancySummary as OccupancySummaryData, Position } from '../../types/position';
 import { formatShelfLabel } from '../../utils/format';
 import { SeatMap } from '../../components/SeatMap/SeatMap';
 import { PositionSidePanel } from '../../components/PositionSidePanel/PositionSidePanel';
 import { MovementModal } from '../../components/MovementModal/MovementModal';
+import { EditOccupiedPositionModal } from '../../components/EditOccupiedPositionModal/EditOccupiedPositionModal';
 import { OccupancySummary } from './components/OccupancySummary';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { StatusLegend } from './components/StatusLegend';
@@ -22,6 +23,7 @@ type ViewMode = 'mapa' | 'lista';
 export function OverviewPage() {
   const { shelves, loading, error, lastUpdated, refresh } = usePositionsPolling();
   const { token } = useAuth();
+  const role = useRole();
   const [summary, setSummary] = useState<OccupancySummaryData | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [summaryError, setSummaryError] = useState<string | null>(null);
@@ -33,10 +35,12 @@ export function OverviewPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('mapa');
   const [selectedPositionId, setSelectedPositionId] = useState<string | null>(null);
   const [movementModalOpen, setMovementModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   // Persists across the modal's opens/closes within the session — the same
   // salesperson/city likely applies to several pallets moved in a row from
   // the dashboard too.
-  const [salesInfo, setSalesInfo] = useState('');
+  const [vendorId, setVendorId] = useState('');
+  const [cidade, setCidade] = useState('');
   // Set right before a search-suggestion pick changes selectedPositionId (and
   // possibly shelfFilter, if the match lives outside the current filter) —
   // the effect below waits for that render to land, then scrolls the now-
@@ -218,16 +222,36 @@ export function OverviewPage() {
           selection={selection}
           onClose={() => setSelectedPositionId(null)}
           onMovimentar={() => setMovementModalOpen(true)}
+          onEditarDados={() => setEditModalOpen(true)}
         />
       </div>
 
-      <MovementModal
-        selection={movementModalOpen ? selection : null}
-        salesInfo={salesInfo}
-        onSalesInfoChange={setSalesInfo}
-        onClose={() => setMovementModalOpen(false)}
-        onSuccess={refresh}
-      />
+      {/* VENDEDOR has no "Movimentar" trigger (see PositionSidePanel) — not
+          mounting the modal at all for that role is a second, explicit
+          guarantee on top of there being no button to open it. */}
+      {role !== 'VENDEDOR' && (
+        <MovementModal
+          selection={movementModalOpen ? selection : null}
+          vendorId={vendorId}
+          onVendorIdChange={setVendorId}
+          cidade={cidade}
+          onCidadeChange={setCidade}
+          onClose={() => setMovementModalOpen(false)}
+          onSuccess={refresh}
+        />
+      )}
+
+      {/* OPERATOR-only trigger (see PositionSidePanel) — not mounting this
+          for ADMIN/VENDEDOR too avoids its internal useVendors() call
+          firing a GET /vendors that's a guaranteed 403 for VENDEDOR (that
+          endpoint is OPERATOR/ADMIN-only) on every Visão Geral page load. */}
+      {role === 'OPERATOR' && (
+        <EditOccupiedPositionModal
+          selection={editModalOpen ? selection : null}
+          onClose={() => setEditModalOpen(false)}
+          onSuccess={refresh}
+        />
+      )}
     </div>
   );
 }

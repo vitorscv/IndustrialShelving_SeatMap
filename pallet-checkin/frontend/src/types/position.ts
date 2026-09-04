@@ -15,6 +15,12 @@ export interface Position {
   orderNumber: string | null;
   product: string | null;
   salesInfo: string | null;
+  // Populated only going forward (see the Vendedores/Vendor catalog) —
+  // null on positions checked in before that feature existed, or ones
+  // whose Vendedor was never attached via the "Editar dados" OPERATOR
+  // action. Used to pre-select the Vendedor dropdown when editing.
+  vendorId: string | null;
+  cidade: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -53,15 +59,28 @@ export interface Movement {
   timestamp: string;
 }
 
+// PATCH /positions/:id/edit-occupied — OPERATOR-only correction tool for a
+// currently OCCUPIED position. All fields required (the form is always
+// pre-filled from the position's current values); does not create a
+// Movement or touch history, see PositionsService.editOccupied.
+export interface EditOccupiedPositionInput {
+  orderNumber: string;
+  product: string;
+  quantity: string;
+  vendorId: string;
+  cidade: string;
+}
+
 export interface CreateMovementInput {
   positionId: string;
   type: MovementType;
-  salesInfo: string;
   // Required on CHECK_IN; ignored by the backend on CHECK_OUT (it reads
   // the values already stored on the Position instead).
   quantity?: string;
   orderNumber?: string;
   product?: string;
+  vendorId?: string;
+  cidade?: string;
 }
 
 export interface OccupancySummary {
@@ -129,15 +148,46 @@ export interface ListMovementsParams {
 // Returned by GET /reports/summary — CURRENT state (right now, from
 // Position), not historical like the .xlsx exports elsewhere on the
 // Relatórios page.
-export interface ReportsSummaryBySalesInfo {
-  salesInfo: string;
+//
+// `key`/`vendorId` drive the UI: a row with vendorId set is clickable,
+// navigating to the vendor detail page (its cities are combined under one
+// row); a row with vendorId null is an old unlinked record grouped by its
+// raw salesInfo text, same as before this feature existed, and stays
+// non-clickable (no detail page for those). `label` is always what's
+// actually displayed.
+export interface ReportsSummaryRow {
+  key: string;
+  label: string;
   quantity: number;
   positionCount: number;
+  vendorId: string | null;
 }
 
 export interface ReportsSummary {
   totalQuantity: number;
-  bySalesInfo: ReportsSummaryBySalesInfo[];
+  bySalesInfo: ReportsSummaryRow[];
+}
+
+// Returned by GET /reports/vendors/:vendorId/positions — every currently
+// occupied position linked to this vendor, across all cities.
+export interface VendorPositionDetail {
+  positionId: string;
+  shelfTitle: string;
+  level: string;
+  number: number;
+  orderNumber: string | null;
+  product: string | null;
+  quantity: string | null;
+  cidade: string | null;
+  salesInfo: string | null;
+}
+
+export interface VendorPositionsReport {
+  vendorId: string;
+  vendorName: string;
+  totalQuantity: number;
+  positionCount: number;
+  positions: VendorPositionDetail[];
 }
 
 export interface Product {
@@ -147,6 +197,19 @@ export interface Product {
 }
 
 export interface ImportProductsResult {
+  created: number;
+  skipped: number;
+}
+
+// A real catalog (unlike Product's suggestion-only free text) — vendorId on
+// CreateMovementInput must reference one of these.
+export interface Vendor {
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface ImportVendorsResult {
   created: number;
   skipped: number;
 }

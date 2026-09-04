@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { MovementType, Prisma, PositionStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { PositionsService } from '../positions/positions.service';
@@ -47,16 +47,31 @@ export class MovementsService {
       // uppercase", not just a UI nicety.
       const orderNumberInput = dto.orderNumber?.toUpperCase();
       const productInput = dto.product?.toUpperCase();
-      const salesInfoInput = dto.salesInfo?.toUpperCase();
+      const cidadeInput = dto.cidade?.toUpperCase();
+
+      // dto.vendorId must reference an existing Vendor — resolved here
+      // (inside the transaction) rather than trusted as-is, since it drives
+      // the derived salesInfo string every existing report/search/summary
+      // consumer reads.
+      let vendorName: string | undefined;
+      if (isCheckIn) {
+        const vendor = await tx.vendor.findUnique({ where: { id: dto.vendorId } });
+        if (!vendor) {
+          throw new BadRequestException(`Vendor ${dto.vendorId} not found`);
+        }
+        vendorName = vendor.name;
+      }
 
       // On check-out the request body doesn't carry orderNumber/product/
-      // quantity — they're read from the position's current state (set at
-      // check-in) so the movement still has a full record of what was
-      // checked out.
+      // quantity/vendorId/cidade — they're read from the position's current
+      // state (set at check-in) so the movement still has a full record of
+      // what was checked out.
       const orderNumber = isCheckIn ? orderNumberInput! : (position.orderNumber ?? 'N/A');
       const product = isCheckIn ? productInput! : (position.product ?? 'N/A');
       const quantity = isCheckIn ? dto.quantity! : (position.quantity ?? '0');
-      const salesInfo = isCheckIn ? salesInfoInput! : (position.salesInfo ?? 'N/A');
+      const salesInfo = isCheckIn ? `${vendorName}/${cidadeInput}` : (position.salesInfo ?? 'N/A');
+      const vendorId = isCheckIn ? dto.vendorId! : (position.vendorId ?? null);
+      const cidade = isCheckIn ? cidadeInput! : (position.cidade ?? null);
 
       const movement = await tx.movement.create({
         data: {
@@ -66,6 +81,8 @@ export class MovementsService {
           orderNumber,
           product,
           salesInfo,
+          vendorId,
+          cidade,
         },
       });
 
@@ -74,7 +91,9 @@ export class MovementsService {
         quantity: isCheckIn ? dto.quantity! : null,
         orderNumber: isCheckIn ? orderNumberInput! : null,
         product: isCheckIn ? productInput! : null,
-        salesInfo: isCheckIn ? salesInfoInput! : null,
+        salesInfo: isCheckIn ? salesInfo : null,
+        vendorId: isCheckIn ? dto.vendorId! : null,
+        cidade: isCheckIn ? cidadeInput! : null,
       });
 
       return { movement, position: updatedPosition };
@@ -186,5 +205,18 @@ export class MovementsService {
     return this.prisma.movementDeletionLog.findMany({
       orderBy: { deletedAt: 'desc' },
     });
+  }
+
+  // Powers the check-in Cidade field's autocomplete for BOTH roles — reads
+  // from Movement (not Position) so a city keeps being suggested even after
+  // every position that used it has since been checked out and cleared.
+  async findAllCidades(): Promise<string[]> {
+    const rows = await this.prisma.movement.findMany({
+      where: { cidade: { not: null } },
+      distinct: ['cidade'],
+      select: { cidade: true },
+      orderBy: { cidade: 'asc' },
+    });
+    return rows.map((row) => row.cidade).filter((cidade): cidade is string => cidade !== null);
   }
 }
