@@ -1,10 +1,115 @@
 import { useRef, useState } from 'react';
+import type { FormEvent, KeyboardEvent } from 'react';
 import { Plus, Upload } from 'lucide-react';
 import { useVendors } from '../../hooks/useVendors';
-import { importVendors } from '../../services/api';
+import { importVendors, updateVendorName } from '../../services/api';
 import { useAuth } from '../../services/auth';
+import type { Vendor } from '../../types/position';
 import { AddVendorModal } from '../../components/AddVendorModal/AddVendorModal';
 import './VendedoresPage.css';
+
+interface VendorRowProps {
+  vendor: Vendor;
+  // Lets the Vendedores page refresh its list immediately after a rename,
+  // instead of waiting for the next scheduled poll tick.
+  onRenamed: () => void;
+}
+
+// Same inline click-to-rename pattern as ShelfInventoryCard's title edit —
+// not abstracted into a shared component there either, so this mirrors it
+// directly rather than introducing a new shared abstraction nobody asked
+// for. Enter/blur saves, Escape cancels.
+function VendorRow({ vendor, onRenamed }: VendorRowProps) {
+  const { token } = useAuth();
+  const [editing, setEditing] = useState(false);
+  const [draftName, setDraftName] = useState(vendor.name);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function startEditing() {
+    setDraftName(vendor.name);
+    setError(null);
+    setEditing(true);
+    // Autofocus + select-all happen on the next frame, once the input has
+    // actually mounted in place of the plain text.
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    });
+  }
+
+  function cancelEditing() {
+    setEditing(false);
+    setError(null);
+    setDraftName(vendor.name);
+  }
+
+  async function commitEditing() {
+    const trimmed = draftName.trim().toUpperCase();
+    if (trimmed === '') {
+      setError('O nome não pode ficar vazio');
+      return;
+    }
+    if (trimmed === vendor.name) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await updateVendorName(vendor.id, trimmed, token!);
+      setEditing(false);
+      onRenamed();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Falha ao renomear vendedor');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    commitEditing();
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      cancelEditing();
+    }
+  }
+
+  return (
+    <tr>
+      <td>
+        {editing ? (
+          <form className="vendedores-page__name-form" onSubmit={handleSubmit}>
+            <input
+              ref={inputRef}
+              type="text"
+              className="vendedores-page__name-input"
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onBlur={commitEditing}
+              disabled={saving}
+            />
+            {error && <p className="vendedores-page__name-error">{error}</p>}
+          </form>
+        ) : (
+          <span
+            className="vendedores-page__name vendedores-page__name--editable"
+            onClick={startEditing}
+            title="Clique para renomear"
+          >
+            {vendor.name}
+          </span>
+        )}
+      </td>
+    </tr>
+  );
+}
 
 export function VendedoresPage() {
   const { token } = useAuth();
@@ -102,9 +207,7 @@ export function VendedoresPage() {
                   </tr>
                 )}
                 {vendors.map((vendor) => (
-                  <tr key={vendor.id}>
-                    <td>{vendor.name}</td>
-                  </tr>
+                  <VendorRow key={vendor.id} vendor={vendor} onRenamed={refresh} />
                 ))}
               </tbody>
             </table>

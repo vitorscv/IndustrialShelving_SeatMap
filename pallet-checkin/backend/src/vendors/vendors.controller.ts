@@ -3,6 +3,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -15,6 +17,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { VendorsService } from './vendors.service';
 import { parseFirstColumnValues } from '../common/parse-spreadsheet';
 import { CreateVendorDto } from './dto/create-vendor.dto';
+import { UpdateVendorDto } from './dto/update-vendor.dto';
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB — enough for a large vendor catalog, small enough to avoid abuse.
 
@@ -39,6 +42,16 @@ export class VendorsController {
   @Post()
   create(@Body() dto: CreateVendorDto) {
     return this.vendorsService.create(dto.name);
+  }
+
+  // Renames a catalog vendor (fixing a typo, say). Every Position/Movement
+  // referencing it does so via the stable vendorId FK, so this never
+  // touches (or breaks) that linkage — see VendorsService.update.
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateVendorDto) {
+    return this.vendorsService.update(id, dto.name);
   }
 
   @Roles('ADMIN')

@@ -141,6 +141,49 @@
   padding: 2rem !important;
 }
 
+/* Same inline click-to-rename look as shelf-inventory-card__title — see
+   VendorRow in VendedoresPage.tsx. */
+.vendedores-page__name--editable {
+  display: inline-block;
+  cursor: text;
+  padding: 0.1rem 0.35rem;
+  margin-left: -0.35rem;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.vendedores-page__name--editable:hover {
+  background-color: var(--color-surface);
+}
+
+.vendedores-page__name-form {
+  margin: 0;
+}
+
+.vendedores-page__name-input {
+  width: 100%;
+  max-width: 24rem;
+  padding: 0.35rem 0.5rem;
+  margin-left: -0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-brand-accent);
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
+}
+
+.vendedores-page__name-input:focus {
+  outline: none;
+}
+
+.vendedores-page__name-error {
+  margin: 0.4rem 0 0;
+  color: var(--color-danger);
+  font-size: 0.75rem;
+}
+
 /* Title + two non-shrinking action buttons in one unbreakable row has no
    safety net today — wrap onto a second line instead of squeezing/
    overflowing once the sidebar (tablet) or outer page width (phone)

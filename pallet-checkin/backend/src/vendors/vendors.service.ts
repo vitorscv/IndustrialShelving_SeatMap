@@ -1,5 +1,6 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { normalizeForSearch } from '../common/normalize';
 
 export interface ImportVendorsResult {
   created: number;
@@ -14,23 +15,55 @@ export class VendorsService {
     return this.prisma.vendor.findMany({ orderBy: { name: 'asc' } });
   }
 
-  // Same case-insensitive duplicate rule as ProductsService.create — checked
-  // against the database directly (Postgres's native mode: 'insensitive')
-  // as a friendly error, backstopped by the @unique constraint on name for
-  // the exact-match (already-uppercased) case.
-  //
+  // Case/accent-insensitive duplicate check, shared by create() and
+  // update() — Postgres's own `mode: 'insensitive'` only covers case, not
+  // accents (e.g. "JÚNIOR" vs "JUNIOR" would otherwise count as
+  // different), so this compares in JS via the same normalizeForSearch
+  // helper already used to match vendor names during check-in (see
+  // MovementsService.create). `excludeId` lets update() skip the vendor's
+  // own current row when checking for a collision against a NEW name.
+  private async findDuplicate(name: string, excludeId?: string) {
+    const normalizedTarget = normalizeForSearch(name);
+    const vendors = await this.prisma.vendor.findMany({ select: { id: true, name: true } });
+    return vendors.find(
+      (vendor) => vendor.id !== excludeId && normalizeForSearch(vendor.name) === normalizedTarget,
+    );
+  }
+
   // Uppercased before storing since vendorId feeds directly into salesInfo
   // (`${vendor.name}/${cidade}`), which must stay consistent with the
   // uppercase convention already applied everywhere else on that field.
   async create(name: string) {
     const trimmed = name.trim().toUpperCase();
-    const existing = await this.prisma.vendor.findFirst({
-      where: { name: { equals: trimmed, mode: 'insensitive' } },
-    });
+    const existing = await this.findDuplicate(trimmed);
     if (existing) {
       throw new ConflictException('A vendor with this name already exists');
     }
     return this.prisma.vendor.create({ data: { name: trimmed } });
+  }
+
+  // Renames a catalog vendor (fixing a typo, say) — a plain update on the
+  // Vendor row's own name column. Every Position/Movement that references
+  // this vendor does so via the stable vendorId FK, never by name, so this
+  // never needs to touch (or even look at) those tables: the linkage is
+  // unaffected, and every "live" read (Resumo atual, vendor detail page)
+  // picks up the new name automatically on its next query. The already-
+  // stored salesInfo text on those rows is a snapshot taken at check-in
+  // time, though, and deliberately does NOT get rewritten here — see
+  // MovementsService.create's comments on why salesInfo is frozen text.
+  async update(id: string, name: string) {
+    const vendor = await this.prisma.vendor.findUnique({ where: { id } });
+    if (!vendor) {
+      throw new NotFoundException(`Vendor ${id} not found`);
+    }
+
+    const trimmed = name.trim().toUpperCase();
+    const duplicate = await this.findDuplicate(trimmed, id);
+    if (duplicate) {
+      throw new ConflictException('A vendor with this name already exists');
+    }
+
+    return this.prisma.vendor.update({ where: { id }, data: { name: trimmed } });
   }
 
   // Same batch-import shape as ProductsService.importNames: duplicates are

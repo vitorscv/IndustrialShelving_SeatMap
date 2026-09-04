@@ -152,6 +152,18 @@ export function createVendor(name: string, token: string): Promise<Vendor> {
   });
 }
 
+// Renames a catalog vendor (fixing a typo, say) — ADMIN only
+// (backend-enforced). Every Position/Movement referencing it does so via
+// the stable vendorId FK, so this never breaks that linkage; only the
+// already-stored salesInfo snapshot on past records keeps the old name.
+export function updateVendorName(id: string, name: string, token: string): Promise<Vendor> {
+  return request<Vendor>(`/vendors/${id}`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ name }),
+  });
+}
+
 export function importVendors(file: File, token: string): Promise<ImportVendorsResult> {
   const formData = new FormData();
   formData.append('file', file);
