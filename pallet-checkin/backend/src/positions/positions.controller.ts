@@ -15,6 +15,17 @@ import { EditOccupiedPositionDto } from './dto/edit-occupied-position.dto';
 export class PositionsController {
   constructor(private readonly positionsService: PositionsService) {}
 
+  // Registered BEFORE the ':id' route below — Nest/Express match routes in
+  // registration order, so if ':id' came first it would swallow this exact
+  // path (matching id='reserva-estoque') and this handler would never run.
+  //
+  // No @Roles() at all — visible to ADMIN, OPERATOR, and VENDEDOR alike,
+  // the one report-shaped endpoint every role can reach.
+  @Get('reserva-estoque')
+  findReservaEstoque() {
+    return this.positionsService.findReservaEstoque();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.positionsService.findById(id);

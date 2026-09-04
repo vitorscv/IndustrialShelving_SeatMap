@@ -101,6 +101,34 @@
   box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25);
 }
 
+.edit-occupied-modal__form input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Same override as CheckinForm's checkbox label — compact inline
+   checkbox + plain-case text instead of the generic column/uppercase
+   field-label layout above. */
+.edit-occupied-modal__checkbox-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: -0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.edit-occupied-modal__checkbox-label input[type='checkbox'] {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--color-brand-accent);
+  cursor: pointer;
+}
+
 .edit-occupied-modal__submit {
   padding: 0.85rem;
   font-family: var(--font-sans);

@@ -202,6 +202,60 @@
   }
 }
 
+/* ===== Phone (≤640px), the same threshold used everywhere else in the
+   app for this breakpoint (Sidebar, VendedoresPage, ResumoAtualCard,
+   etc.) — desktop and tablet stay pixel-identical, this only shrinks the
+   cards once the layout is already down to 1-2 columns (see the 1024px/
+   480px blocks above/below), which is what actually made them feel too
+   tall on a phone screen. Every value here scales down proportionally
+   from its non-phone counterpart, nothing hidden or restructured. */
+@media (max-width: 640px) {
+  .occupancy-summary {
+    gap: 0.6rem;
+  }
+
+  .occupancy-summary__stat {
+    gap: 0.25rem;
+    padding: 0.75rem 0.6rem;
+  }
+
+  /* Overrides the 18px set via the lucide <Icon size={18}> prop in
+     OccupancySummary.tsx — a plain CSS rule already wins over an SVG's
+     own width/height attributes, no !important or JSX change needed. */
+  .occupancy-summary__icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .occupancy-summary__value {
+    font-size: 1.1rem;
+  }
+
+  .occupancy-summary__label {
+    font-size: 0.62rem;
+  }
+
+  .occupancy-summary__sublabel {
+    font-size: 0.6rem;
+  }
+
+  .occupancy-summary__stat--gauge {
+    gap: 0.6rem;
+  }
+
+  /* Same trick as the icon above — the SVG's viewBox stays "0 0 64 64",
+     so shrinking just the rendered width/height scales the ring, stroke,
+     and percentage text inside it uniformly, all in one rule. */
+  .occupancy-summary__gauge {
+    width: 46px;
+    height: 46px;
+  }
+
+  .occupancy-summary__gauge-message {
+    font-size: 0.68rem;
+  }
+}
+
 /* ===== Phone, very narrow (≤480px): 2 columns still get tight for the
    4-digit stat cards — stack to 1 per row instead. ===== */
 @media (max-width: 480px) {

@@ -196,6 +196,29 @@ export interface VendorPositionsReport {
   positions: VendorPositionDetail[];
 }
 
+// Returned by GET /positions/reserva-estoque — every currently occupied
+// position whose Pedido/Cliente was flagged "RESERVA DE ESTOQUE" via the
+// check-in/edit form's checkbox. Same shape as VendorPositionDetail (this
+// is the same "filtered position list" pattern) plus orderNumber, which
+// is always the literal "RESERVA DE ESTOQUE" string here.
+export interface ReservaEstoquePositionDetail {
+  positionId: string;
+  shelfTitle: string;
+  level: string;
+  number: number;
+  orderNumber: string;
+  product: string | null;
+  quantity: string | null;
+  cidade: string | null;
+  salesInfo: string | null;
+}
+
+export interface ReservaEstoqueReport {
+  totalQuantity: number;
+  positionCount: number;
+  positions: ReservaEstoquePositionDetail[];
+}
+
 export interface Product {
   id: string;
   name: string;

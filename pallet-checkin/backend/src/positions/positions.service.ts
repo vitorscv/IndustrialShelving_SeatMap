@@ -1,7 +1,33 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Position, PositionStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { parseQuantity } from '../common/quantity';
 import { EditOccupiedPositionDto } from './dto/edit-occupied-position.dto';
+
+// The exact, controlled orderNumber value the "Reserva de estoque"
+// checkbox writes — a simple equality match is enough precisely because
+// it's no longer free text going forward (old free-text variants like
+// "Reserva de estoque - lote 5" are out of scope by design, see
+// findReservaEstoque below).
+export const RESERVA_ESTOQUE_ORDER_NUMBER = 'RESERVA DE ESTOQUE';
+
+export interface ReservaEstoquePositionDetail {
+  positionId: string;
+  shelfTitle: string;
+  level: string;
+  number: number;
+  orderNumber: string;
+  product: string | null;
+  quantity: string | null;
+  cidade: string | null;
+  salesInfo: string | null;
+}
+
+export interface ReservaEstoqueReport {
+  totalQuantity: number;
+  positionCount: number;
+  positions: ReservaEstoquePositionDetail[];
+}
 
 @Injectable()
 export class PositionsService {
@@ -13,6 +39,40 @@ export class PositionsService {
       throw new NotFoundException(`Position ${id} not found`);
     }
     return position;
+  }
+
+  // Powers the "Reserva de Estoque" sidebar page — visible to every role
+  // (see PositionsController: no @Roles() at all here, unlike most other
+  // report-shaped endpoints). Mirrors VendorPositionsReport's shape since
+  // it's the same "filtered position list + totals" pattern.
+  async findReservaEstoque(): Promise<ReservaEstoqueReport> {
+    const positions = await this.prisma.position.findMany({
+      where: { status: PositionStatus.OCCUPIED, orderNumber: RESERVA_ESTOQUE_ORDER_NUMBER },
+      include: { shelf: true },
+      orderBy: [{ shelf: { title: 'asc' } }, { level: 'asc' }, { number: 'asc' }],
+    });
+
+    let totalQuantity = 0;
+    const positionRows: ReservaEstoquePositionDetail[] = positions.map((position) => {
+      totalQuantity += position.quantity !== null ? parseQuantity(position.quantity) : 0;
+      return {
+        positionId: position.id,
+        shelfTitle: position.shelf.title,
+        level: position.level,
+        number: position.number,
+        orderNumber: position.orderNumber ?? RESERVA_ESTOQUE_ORDER_NUMBER,
+        product: position.product,
+        quantity: position.quantity,
+        cidade: position.cidade,
+        salesInfo: position.salesInfo,
+      };
+    });
+
+    return {
+      totalQuantity,
+      positionCount: positionRows.length,
+      positions: positionRows,
+    };
   }
 
   // OPERATOR-only correction tool (see PositionsController) for fixing

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Archive,
   ArrowLeftRight,
   Box,
   ChevronLeft,
@@ -39,6 +40,14 @@ const NAV_ITEMS: Array<{
   },
   { to: '/dashboard/produtos', label: 'Produtos', icon: Box, end: false, roles: ['ADMIN'] },
   { to: '/dashboard/vendedores', label: 'Vendedores', icon: Users, end: false, roles: ['ADMIN'] },
+  // No `roles` here either — every role can flag/view reserva de estoque
+  // positions. Positioned right before Relatórios in this shared, ordered
+  // list — the same list every role filters down from, so OPERATOR/
+  // VENDEDOR automatically see it right before Relatórios too (the
+  // ADMIN-only items between them are simply invisible to those roles,
+  // which is what preserves the relative order without any per-role
+  // special-casing).
+  { to: '/dashboard/reserva-estoque', label: 'Reserva de Estoque', icon: Archive, end: false },
   {
     to: '/dashboard/relatorios',
     label: 'Relatórios',

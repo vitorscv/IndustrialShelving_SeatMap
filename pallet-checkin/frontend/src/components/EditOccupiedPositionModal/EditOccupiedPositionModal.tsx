@@ -12,6 +12,12 @@ import './EditOccupiedPositionModal.css';
 
 const TRANSITION_MS = 200;
 
+// Exact, controlled value the "Reserva de estoque" checkbox writes into
+// Pedido/Cliente — must match the backend's RESERVA_ESTOQUE_ORDER_NUMBER
+// (positions.service.ts) byte-for-byte, since GET /positions/reserva-
+// estoque matches on it exactly, not a substring.
+const RESERVA_ESTOQUE_ORDER_NUMBER = 'RESERVA DE ESTOQUE';
+
 export interface EditOccupiedPositionSelection {
   position: Position;
   shelfTitle: string;
@@ -47,6 +53,7 @@ export function EditOccupiedPositionModal({
   const initializedForPositionIdRef = useRef<string | null>(null);
 
   const [orderNumber, setOrderNumber] = useState('');
+  const [reservaEstoque, setReservaEstoque] = useState(false);
   const [product, setProduct] = useState('');
   const [quantity, setQuantity] = useState('');
   const [vendorId, setVendorId] = useState('');
@@ -96,7 +103,9 @@ export function EditOccupiedPositionModal({
     // An old record with only legacy salesInfo text has no vendorId yet,
     // so Vendedor starts blank (must be explicitly selected) rather than
     // guessing one from the free text.
-    setOrderNumber(selection.position.orderNumber ?? '');
+    const initialOrderNumber = selection.position.orderNumber ?? '';
+    setOrderNumber(initialOrderNumber);
+    setReservaEstoque(initialOrderNumber === RESERVA_ESTOQUE_ORDER_NUMBER);
     setProduct(selection.position.product ?? '');
     setQuantity(selection.position.quantity ?? '');
     setVendorId(selection.position.vendorId ?? '');
@@ -180,7 +189,25 @@ export function EditOccupiedPositionModal({
               onChange={(e) => setOrderNumber(e.target.value.toUpperCase())}
               required
               autoFocus
+              disabled={reservaEstoque}
             />
+          </label>
+
+          <label className="edit-occupied-modal__checkbox-label">
+            <input
+              type="checkbox"
+              checked={reservaEstoque}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setReservaEstoque(checked);
+                if (checked) {
+                  setOrderNumber(RESERVA_ESTOQUE_ORDER_NUMBER);
+                } else if (orderNumber === RESERVA_ESTOQUE_ORDER_NUMBER) {
+                  setOrderNumber('');
+                }
+              }}
+            />
+            Reserva de estoque
           </label>
 
           <label>

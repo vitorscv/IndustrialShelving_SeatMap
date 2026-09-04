@@ -7,6 +7,12 @@ import { VendedorAutocomplete } from '../VendedorAutocomplete/VendedorAutocomple
 import { isQuantityBeingTyped, isQuantityValid } from '../../utils/quantity';
 import './CheckinForm.css';
 
+// Exact, controlled value the "Reserva de estoque" checkbox writes into
+// Pedido/Cliente — must match the backend's RESERVA_ESTOQUE_ORDER_NUMBER
+// (positions.service.ts) byte-for-byte, since GET /positions/reserva-
+// estoque matches on it exactly, not a substring.
+const RESERVA_ESTOQUE_ORDER_NUMBER = 'RESERVA DE ESTOQUE';
+
 export interface CheckinFormSubmitInput {
   // Only meaningful (and only sent) on the CHECK_IN path — CHECK_OUT reads
   // quantity/orderNumber/product/vendorId/cidade from the Position
@@ -52,6 +58,7 @@ export function CheckinForm({
   submitting,
 }: CheckinFormProps) {
   const [orderNumber, setOrderNumber] = useState('');
+  const [reservaEstoque, setReservaEstoque] = useState(false);
   const [product, setProduct] = useState('');
   const [quantity, setQuantity] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -76,6 +83,7 @@ export function CheckinForm({
     try {
       await onSubmit(input);
       setOrderNumber('');
+      setReservaEstoque(false);
       setProduct('');
       setQuantity('');
     } catch (err) {
@@ -105,7 +113,27 @@ export function CheckinForm({
                 onChange={(e) => setOrderNumber(e.target.value.toUpperCase())}
                 required
                 autoFocus
+                disabled={reservaEstoque}
               />
+            </label>
+
+            <label className="checkin-form__checkbox-label">
+              <input
+                type="checkbox"
+                checked={reservaEstoque}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setReservaEstoque(checked);
+                  if (checked) {
+                    setOrderNumber(RESERVA_ESTOQUE_ORDER_NUMBER);
+                  } else if (orderNumber === RESERVA_ESTOQUE_ORDER_NUMBER) {
+                    // Otherwise the user is left with a stale locked-in
+                    // value they never actually typed themselves.
+                    setOrderNumber('');
+                  }
+                }}
+              />
+              Reserva de estoque
             </label>
 
             <label>

@@ -4,6 +4,7 @@ import { AuthContext } from './services/auth';
 import { LoginPage } from './pages/login/LoginPage';
 import { DashboardLayout } from './pages/dashboard/DashboardLayout';
 import { OverviewPage } from './pages/dashboard/OverviewPage';
+import { ReservaEstoquePage } from './pages/dashboard/ReservaEstoquePage';
 import { EstantesPage } from './pages/dashboard/EstantesPage';
 import { MovementsPage } from './pages/dashboard/MovementsPage';
 import { ProdutosPage } from './pages/dashboard/ProdutosPage';
@@ -33,6 +34,9 @@ function App() {
           }
         >
           <Route index element={<OverviewPage />} />
+          {/* No role-restricting wrapper — visible/accessible to ADMIN,
+              OPERATOR, and VENDEDOR alike, same as the index route. */}
+          <Route path="reserva-estoque" element={<ReservaEstoquePage />} />
           <Route
             path="estantes"
             element={

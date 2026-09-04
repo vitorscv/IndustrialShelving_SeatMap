@@ -14,6 +14,7 @@ import type {
   Position,
   Product,
   ReportsSummary,
+  ReservaEstoqueReport,
   Shelf,
   Vendor,
   VendorPositionsReport,
@@ -315,6 +316,15 @@ export function fetchVendorPositionsReport(
   token: string,
 ): Promise<VendorPositionsReport> {
   return request<VendorPositionsReport>(`/reports/vendors/${vendorId}/positions`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
+// Powers the "Reserva de Estoque" sidebar page — accessible to every role
+// (no @Roles() on the backend route), unlike most other report-shaped
+// endpoints.
+export function fetchReservaEstoque(token: string): Promise<ReservaEstoqueReport> {
+  return request<ReservaEstoqueReport>('/positions/reserva-estoque', {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
